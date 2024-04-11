@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="110" height="50">
+	<pattern id="p" x="0" y="0" width="20" height="20" patternUnits="userSpaceOnUse">
+		<rect x="0" width="10" height="10" y="0" fill="rgba(128,128,128,0.75)" />
+		<rect x="10" width="10" height="10" y="10" fill="rgba(128,128,128,0.75)" />
+	</pattern>
+	<rect width="110" height="50" fill="url(#p)" stroke="rgba(128,128,128,0.9)"></rect>
+</svg>

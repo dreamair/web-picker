@@ -1,0 +1,23 @@
+div.capture-overlay {
+	position: fixed;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	left: 0;
+	z-index: 9998;
+	background-color: transparent;
+	cursor: crosshair;
+	border: 100vw solid rgba(70, 70, 70, 0.3);
+}
+
+div.capture-overlay:hover {
+	border-color: rgba(70, 0, 0, 0.3);
+}
+
+div.capture-area {
+	position: fixed;
+	z-index: 9999;
+	border: 1px solid red;
+	background-color: transparent;
+	cursor: se-resize;
+}
