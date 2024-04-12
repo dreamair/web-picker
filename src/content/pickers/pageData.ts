@@ -1,20 +1,20 @@
 import type { Message } from '../../common/data.js'
 import {
-	imageValue, stringValue, textValue, urlValue
+	imageField, stringField, textField, urlField
 } from '../../common/data.js'
 
 export function pickPageData() {
 	return new Promise<Message>((resolve) => {
 		resolve({
 			action: 'setFields',
-			payload: {
-				url:
-					urlValue(matches(genericQueries.url) ?? location.href, location.href),
-				title: stringValue(matches(genericQueries.title)),
-				description: textValue(matches(genericQueries.description)),
-				image: imageValue(matches(genericQueries.image), location.href),
-				icon: imageValue(matches(genericQueries.icon), location.href),
-			}
+			payload: [
+				urlField('url',
+					matches(genericQueries.url) ?? location.href, location.href),
+				stringField('title', matches(genericQueries.title)),
+				textField('description', matches(genericQueries.description)),
+				imageField('image', matches(genericQueries.image), location.href),
+				imageField('icon', matches(genericQueries.icon), location.href),
+			]
 		})
 	})
 }

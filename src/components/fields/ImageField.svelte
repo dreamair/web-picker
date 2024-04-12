@@ -1,22 +1,22 @@
 <script lang="ts">
 	import type { ChangeEventHandler } from 'svelte/elements'
 	import type { Writable } from 'svelte/store'
-	import type { Command, FieldValue, ImageValue } from '../../common/data.js'
-	import { toggleCommand } from '../../common/data.js'
+	import type { Command, Field } from '../../common/data.js'
+	import { removeField, toggleCommand } from '../../common/data.js'
 
 	export let key: string
-	export let data: Writable<Record<string, FieldValue>>
+	export let data: Writable<Field[]>
 	export let activeCommand: Writable<Command | null>
 	export let isEditMode = false
 
 	let isKeyValid = true
 
-	$: value = $data[key] as ImageValue
+	$: field = $data.find(f => f.name === key)
 
 	const onKeyChanged: ChangeEventHandler<HTMLInputElement> = event => {
 		const newKey = event.currentTarget.value
 		if (newKey === key) return
-		isKeyValid = !(newKey in $data)
+		isKeyValid = !$data.find(f => f.name === newKey)
 		console.log('Key changed:', key)
 	}
 	const onPick = () => {
@@ -28,10 +28,7 @@
 		console.log('Picked:', key)
 	}
 	const onRemove = () => {
-		data.update(d => {
-			const { [key]: _, ...rest } = d
-			return rest
-		})
+		data.update(fields => removeField(fields, key))
 		console.log('Removed:', key)
 	}
 </script>
@@ -54,7 +51,7 @@
 		{/if}
 	</header>
 	<img
-		src={value.url ? value.url : '/src/assets/placeholder.svg'}
+		src={field?.value ? field.value : '/src/assets/placeholder.svg'}
 		alt="picked" />
 </article>
 

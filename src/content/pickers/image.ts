@@ -1,4 +1,4 @@
-import type { Field, Message } from '../../common/data.js'
+import type { Field, ImageField, Message } from '../../common/data.js'
 import { createOverlay } from '../../common/dom.js'
 
 let callback: (url: string, alt?: string | null) => void
@@ -10,8 +10,8 @@ export function pickImage(field: Field) {
 				action: 'setField',
 				payload: {
 					...field,
-					value: { type: 'image', url, src: location.href, alt }
-				}
+					type: 'image', value: url, source: location.href, alt
+				} as ImageField
 			})
 		}
 		document.body.addEventListener('click', onClick)

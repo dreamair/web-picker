@@ -8,10 +8,7 @@ export function pickUrl(field: Field) {
 		callback = (url) => {
 			resolve({
 				action: 'setField',
-				payload: {
-					...field,
-					value: { type: 'url', url, src: location.href }
-				}
+				payload: { ...field, value: url, source: location.href }
 			})
 		}
 		document.body.addEventListener('click', onClick)

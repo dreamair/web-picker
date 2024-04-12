@@ -1,34 +1,14 @@
 <script lang="ts">
-	import type { FieldValue } from '../common/data.js'
-	import { activeCommand, data } from '../common/data.js'
+	import { activeCommand, data, fieldSets } from '../common/data.js'
 	import { fieldComponents } from './fields/index.js'
-
-	const fieldSets = {
-		default: {
-			url: { type: 'url' },
-			title: { type: 'string' },
-			description: { type: 'text' },
-			image: { type: 'image' },
-		},
-		product: {
-			url: { type: 'url' },
-			title: { type: 'string' },
-			description: { type: 'text' },
-			image: { type: 'image' },
-			price: { type: 'string' },
-		},
-	} satisfies Record<string, Record<string, FieldValue>>
 
 	let fieldSetKey: keyof typeof fieldSets = 'default'
 
-	$: data.update(f =>
-		Object.entries(fieldSets[fieldSetKey]).reduce(
-			(acc, [key, value]) => {
-				acc[key] = key in f ? { ...value, ...f[key] } : value
-				return acc
-			},
-			{} as Record<string, FieldValue>,
-		),
+	$: data.update(fields =>
+		fieldSets[fieldSetKey].map(field => {
+			const f = fields.find(f => f.name === field.name)
+			return f ? { ...f, ...field } : field
+		}),
 	)
 
 	let isEditMode = false
@@ -57,15 +37,7 @@
 	}
 
 	const onClear = () => {
-		data.update(d =>
-			Object.entries(d).reduce(
-				(acc, [key, value]) => {
-					acc[key] = { type: value.type }
-					return acc
-				},
-				{} as Record<string, FieldValue>,
-			),
-		)
+		data.update(fields => fields.map(f => ({ name: f.name, type: f.type })))
 	}
 </script>
 
@@ -79,10 +51,10 @@
 		</select>
 		<button on:click={toggleEditMode} class="outline">✏️</button>
 	</header>
-	{#each Object.entries($data) as [key, field]}
+	{#each $data as field}
 		<svelte:component
 			this={fieldComponents[field.type]}
-			{key}
+			key={field.name}
 			{data}
 			{activeCommand}
 			{isEditMode} />

@@ -16,7 +16,7 @@ import './styles.css'
 chrome.runtime.onMessage.addListener(async ({ action, payload }: Message) => {
 	if (action.startsWith('pick-')) action = action.slice(5)
 	const picker: keyof typeof pickers = action === 'pick'
-		? payload.value.type
+		? payload.type
 		: action in pickers ? action : null
 	console.log('pick', picker, action, payload)
 	if (picker in pickers) {

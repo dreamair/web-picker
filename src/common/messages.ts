@@ -1,31 +1,32 @@
 import type { Writable } from 'svelte/store'
-import type { Area, Command, Field, FieldValue } from './data'
+import type { Area, Command, Field } from './data.js'
+import { getField, updateField, updateFields } from './data.js'
 import { cropImage } from './imageUtils.js'
 
-export function setupMessages(data: Writable<Record<string, FieldValue>>,
+export function setupMessages(data: Writable<Field[]>,
 	activeCommand: Writable<Command | null>) {
 	// send
 	activeCommand.subscribe(cmd => {
 		if (!cmd) return
-		data.subscribe(d => {
+		data.subscribe(fields => {
 			const key = cmd.key
-			const value = key ? d[key] : undefined
-			console.log(cmd.action, key, value)
+			const field = key ? getField(fields, key) : undefined
+			console.log('command message', cmd.action, field)
 			chrome.runtime.sendMessage(
-				{ action: cmd.action, payload: { key, value } })
+				{ action: cmd.action, payload: field })
 				.catch(console.error)
 		})()
 	})
 	// receive
 	const handlers: Record<string, (payload: any) => void> = {
-		setField: ({ key, value }: Field) => {
-			console.log('set field', key, value)
-			data.update(d => ({ ...d, [key]: value }))
+		setField: (field: Field) => {
+			console.log('set field', field)
+			data.update(fields => updateField(fields, field.name, field))
 			activeCommand.set(null)
 		},
-		setFields: (fields: Record<string, FieldValue>) => {
-			console.log('set fields', fields)
-			data.update(d => ({ ...d, ...fields }))
+		setFields: (newFields: Field[]) => {
+			console.log('set fields', newFields)
+			data.update(fields => updateFields(fields, newFields))
 			activeCommand.set(null)
 		},
 		takeScreenshot: async ({ field, area }: { field: Field; area: Area }) => {
@@ -33,7 +34,7 @@ export function setupMessages(data: Writable<Record<string, FieldValue>>,
 			const dataUrl = await chrome.tabs.captureVisibleTab()
 			const url = await cropImage(dataUrl, area)
 			console.log('set screenshot', field)
-			data.update(d => ({ ...d, [field.key]: { ...field.value, url } }))
+			data.update(fields => updateField(fields, field.name, { value: url }))
 			activeCommand.set(null)
 		}
 	}

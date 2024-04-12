@@ -6,10 +6,7 @@ let callback: (text: string) => void
 export function pickText(field: Field) {
 	return new Promise<Message>((resolve) => {
 		callback = (text: string) => {
-			resolve({
-				action: 'setField',
-				payload: { ...field, value: { ...field.value, text } }
-			})
+			resolve({ action: 'setField', payload: { ...field, value: text } })
 		}
 		document.body.addEventListener('click', onClick)
 		document.body.addEventListener('mouseover', onMouseOver)

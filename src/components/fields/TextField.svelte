@@ -1,54 +1,44 @@
 <script lang="ts">
 	import type { ChangeEventHandler } from 'svelte/elements'
 	import type { Writable } from 'svelte/store'
-	import type {
-		Command,
-		FieldValue,
-		StringValue,
-		TextValue,
-		UrlValue,
-	} from '../../common/data'
-	import { isUrlField, toggleCommand } from '../../common/data.js'
+	import type { Command, Field } from '../../common/data'
+	import { removeField, toggleCommand, updateField } from '../../common/data.js'
 	import { autoHeight } from '../autoHeight.js'
 
 	export let key: string
-	export let data: Writable<Record<string, FieldValue>>
+	export let data: Writable<Field[]>
 	export let activeCommand: Writable<Command | null>
 	export let isEditMode = false
 
 	let isKeyValid = true
 
-	$: field = $data[key] as TextValue | UrlValue | StringValue
-	$: text = isUrlField(field) ? field.url ?? '' : field.text ?? ''
+	$: field = $data.find(f => f.name === key)
+	$: text = field?.value ?? ''
 
 	const prefixes = {
 		url: /^([\w:/.-]+)\?/,
 		string: /([^|-]+)[|-]/,
 	}
 
-	$: prefix = prefixes[field.type as keyof typeof prefixes]
+	$: prefix = prefixes[field?.type as keyof typeof prefixes]
 	$: hasPrefix = prefix && prefix.test(text)
 
 	const postfixes = {
 		string: /[|-](.*)/,
 	}
 
-	$: postfix = postfixes[field.type as keyof typeof postfixes]
+	$: postfix = postfixes[field?.type as keyof typeof postfixes]
 	$: hasPostfix = postfix && postfix.test(text)
 
-	const updateData = (txt?: string) => {
-		if (!txt) return
-		data.update(d => ({
-			...d,
-			[key]:
-				field.type === 'url' ? { ...field, url: txt } : { ...field, text: txt },
-		}))
+	const updateData = (value?: string) => {
+		if (!value) return
+		data.update(fields => updateField(fields, key, { value }))
 	}
 
 	const onKeyChanged: ChangeEventHandler<HTMLInputElement> = event => {
 		const newKey = event.currentTarget.value
 		if (newKey === key) return
-		isKeyValid = !(newKey in $data)
+		isKeyValid = !$data.find(f => f.name === newKey)
 		console.log('Key changed:', key)
 	}
 	const onTextChanged: ChangeEventHandler<
@@ -68,10 +58,7 @@
 		updateData(text.match(postfix)?.[1].trim())
 	}
 	const onRemove = () => {
-		data.update(d => {
-			const { [key]: _, ...rest } = d
-			return rest
-		})
+		data.update(fields => removeField(fields, key))
 		console.log('Removed:', key)
 	}
 </script>
@@ -107,7 +94,9 @@
 				title="Pick or select a text on the current Web page.">📌</button>
 		{/if}
 	</header>
-	{#if field.type === 'text'}
+	{#if !field}
+		<div>Field not found!</div>
+	{:else if field.type === 'text'}
 		<textarea value={text} on:input={onTextChanged} use:autoHeight />
 	{:else}
 		<input

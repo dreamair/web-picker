@@ -1,84 +1,125 @@
 import { writable } from 'svelte/store'
 
-export interface StringValue {
+export interface StringField {
 	type: 'string'
-	text?: string
+	name: string
+	value?: string
 	source?: string
 }
 
-export interface TextValue {
+export interface TextField {
 	type: 'text'
-	text?: string
+	name: string
+	value?: string
 	source?: string
 }
 
-export interface UrlValue {
+export interface UrlField {
 	type: 'url'
-	url?: string
+	name: string
+	value?: string
 	source?: string
 }
 
-export interface ImageValue {
+export interface ImageField {
 	type: 'image'
-	url?: string
+	name: string
+	value?: string
 	source?: string
 	alt?: string
 }
 
-export type FieldValue = StringValue | TextValue | ImageValue | UrlValue
+export type Field = StringField | TextField | ImageField | UrlField
 
-export interface Field<V extends FieldValue = any> {
-	key: string
-	value: V
-}
-
-export function isStringField(field?: FieldValue): field is StringValue {
+export function isStringField(field?: Field): field is StringField {
 	return field?.type === 'string'
 }
 
-export function isTextField(field?: FieldValue): field is TextValue {
+export function isTextField(field?: Field): field is TextField {
 	return field?.type === 'text'
 }
 
-export function isUrlField(field?: FieldValue): field is UrlValue {
+export function isUrlField(field?: Field): field is UrlField {
 	return field?.type === 'url'
 }
 
-export function stringValue(text?: string) {
-	return text ? { type: 'string', text } : undefined
+export function isImageField(field?: Field): field is ImageField {
+	return field?.type === 'image'
 }
 
-export function textValue(text?: string) {
-	return text ? { type: 'text', text } : undefined
+export function stringField(name: string, value?: string) {
+	return value ? { type: 'string', name, value } : undefined
 }
 
-export function urlValue(url?: string, baseUrl?: string) {
+export function textField(name: string, value?: string) {
+	return value ? { type: 'text', name, value } : undefined
+}
+
+export function urlField(name: string, url?: string, baseUrl?: string) {
 	return url
 		? {
 			type: 'url',
-			url: baseUrl ? new URL(url, baseUrl).href : url,
+			name, value: baseUrl ? new URL(url, baseUrl).href : url,
 			source: baseUrl,
 		}
 		: undefined
 }
 
-export function imageValue(url?: string, baseUrl?: string) {
+export function imageField(name: string, url?: string, baseUrl?: string) {
 	return url
 		? {
 			type: 'image',
-			url: baseUrl ? new URL(url, baseUrl).href : url,
+			name, value: baseUrl ? new URL(url, baseUrl).href : url,
 			source: baseUrl,
 		}
 		: undefined
 }
 
-export const data = writable<Record<string, FieldValue>>({
-	url: { type: 'url' },
-	title: { type: 'string' },
-	description: { type: 'text' },
-	image: { type: 'image' },
-})
+export const fieldSets = {
+	default: [
+		{ name: 'url', type: 'url' },
+		{ name: 'title', type: 'string' },
+		{ name: 'description', type: 'text' },
+		{ name: 'image', type: 'image' },
+	],
+	product: [
+		{ name: 'url', type: 'url' },
+		{ name: 'title', type: 'string' },
+		{ name: 'description', type: 'text' },
+		{ name: 'image', type: 'image' },
+		{ name: 'price', type: 'string' },
+	],
+} satisfies Record<string, Field[]>
 
+
+export const data = writable<Field[]>(fieldSets.default)
+
+
+export function getField(fields: Field[], name: string) {
+	return fields.find(f => f.name === name)
+}
+
+export function updateField(fields: Field[], name: string, data: object) {
+	const idx = fields.findIndex(f => f.name === name)
+	if (idx === -1) return fields
+	const newFields = [...fields]
+	newFields[idx] = { ...newFields[idx], ...data }
+	return newFields
+}
+
+export function updateFields(fields: Field[], newFields: Field[]) {
+	const newFieldsMap = new Map(newFields.map(f => [f.name, f]))
+	return fields.map(f =>
+		newFieldsMap.has(f.name) ? { ...f, ...newFieldsMap.get(f.name) } : f)
+}
+
+export function removeField(fields: Field[], name: string) {
+	const idx = fields.findIndex(f => f.name === name)
+	if (idx === -1) return fields
+	const newFields = [...fields]
+	newFields.splice(idx, 1)
+	return newFields
+}
 
 export type Command = {
 	action: 'pick' | 'pick-screenshot' | 'pick-pageData'
