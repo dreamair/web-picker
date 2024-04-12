@@ -1,5 +1,10 @@
 <script lang="ts">
-	import { activeCommand, data, fieldSets } from '../common/data.js'
+	import {
+		activeCommand,
+		data,
+		exportFields,
+		fieldSets,
+	} from '../common/data.js'
 	import { fieldComponents } from './fields/index.js'
 
 	let fieldSetKey: keyof typeof fieldSets = 'default'
@@ -28,7 +33,7 @@
 	const onCopy = () => {
 		data.subscribe(async d => {
 			try {
-				navigator.clipboard.writeText(JSON.stringify(d, null, 2))
+				navigator.clipboard.writeText(JSON.stringify(exportFields(d), null, 2))
 				console.log('Data copied to clipboard')
 			} catch (err) {
 				console.error('Failed to copy data: ', err)

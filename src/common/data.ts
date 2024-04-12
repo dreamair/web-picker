@@ -121,6 +121,21 @@ export function removeField(fields: Field[], name: string) {
 	return newFields
 }
 
+export function exportFields(fields: Field[]) {
+	return fields.reduce((obj, field) => {
+		if (!field.name) return obj
+		if (field.value === undefined || field.value === null) return obj
+		const val = { ...field } as Omit<Field, 'name'> & { name?: string }
+		if (typeof field.value === 'string') {
+			val.value = field.value.trim()
+			if (val.value === '') return obj
+		}
+		if (val.source && val.value === val.source) delete val.source
+		delete val.name
+		return { ...obj, [field.name.trim()]: val }
+	}, {} as Record<string, Omit<Field, 'name'>>)
+}
+
 export type Command = {
 	action: 'pick' | 'pick-screenshot' | 'pick-pageData'
 	key?: string
