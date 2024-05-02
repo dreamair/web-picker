@@ -1,5 +1,6 @@
 import type { Field, Message } from '../../common/data.js'
 import { createOverlay, hasText } from '../../common/dom.js'
+import { domToMd } from '../common/domToMd.js'
 
 let callback: (text: string) => void
 
@@ -26,7 +27,7 @@ function onClick(event: MouseEvent) {
 	overlay?.remove()
 	overlay = null
 	const targetElement = event.target as HTMLElement
-	const text = targetElement.innerText
+	const text = domToMd(targetElement)
 	if (!text) return
 	callback(text)
 }
@@ -54,3 +55,6 @@ function onSelectionChange() {
 		overlay = null
 	}
 }
+
+
+

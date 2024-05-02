@@ -2,6 +2,7 @@ import type { Message } from '../../common/data.js'
 import {
 	imageField, stringField, textField, urlField
 } from '../../common/data.js'
+import { domToMd, htmlToMd } from '../common/domToMd.js'
 
 export function pickPageData() {
 	return new Promise<Message>((resolve) => {
@@ -73,7 +74,11 @@ function matches(patterns: string[]) {
 		const s = i > 0 ? pattern.substring(0, i) : pattern
 		const a = i > 0 ? pattern.substring(i + 2) : null
 		const match = document.querySelector(s)
-		const txt = match ? a ? match.getAttribute(a) : match.textContent : null
+		const txt = match
+			? a
+				? htmlToMd(match.getAttribute(a))
+				: domToMd(match)
+			: null
 		if (txt && txt.trim()) return txt.trim()
 	}
 }
