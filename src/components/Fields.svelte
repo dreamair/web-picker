@@ -66,15 +66,24 @@
 	{/each}
 	<footer>
 		{#if isEditMode}
-			<button on:click={onAdd} title="Add a new field.">+</button>
+			<div>
+				<button on:click={onAdd} title="Add a new field.">+</button>
+			</div>
 		{:else}
-			<button
-				on:click={onPageData}
-				title="Automatically try to extract page data like URL, title,..."
-				>✨</button>
-			<button on:click={onCopy} title="Copy the data to the clipboard."
-				>📋</button>
-			<button on:click={onClear} title="Clear all data.">🧹</button>
+			<div>
+				<button on:click={onCopy} title="Copy the data to the clipboard.">
+					📋
+				</button>
+			</div>
+			<div>
+				<button
+					class="secondary"
+					on:click={onPageData}
+					title="Automatically try to extract page data like URL, title,..."
+					>✨</button>
+				<button class="secondary" on:click={onClear} title="Clear all data."
+					>🧹</button>
+			</div>
 		{/if}
 	</footer>
 </div>
@@ -90,6 +99,10 @@
 		margin: 0;
 	}
 	footer {
+		display: flex;
+		justify-content: space-between;
+	}
+	footer > div {
 		display: flex;
 		justify-content: flex-end;
 		gap: 8px;

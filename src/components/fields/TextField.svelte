@@ -114,7 +114,11 @@
 	{#if !field}
 		<div>Field not found!</div>
 	{:else if field.type === 'text'}
-		<textarea value={text} on:input={onTextChanged} use:autoHeight />
+		<textarea
+			value={text}
+			on:input={onTextChanged}
+			use:autoHeight
+			disabled={isEditMode} />
 	{:else}
 		<input
 			type="text"

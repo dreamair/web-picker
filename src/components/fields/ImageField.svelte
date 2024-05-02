@@ -52,7 +52,8 @@
 	</header>
 	<img
 		src={field?.value ? field.value : '/src/assets/placeholder.svg'}
-		alt="picked" />
+		alt="picked"
+		class:disabled={isEditMode} />
 </article>
 
 <style>
@@ -67,7 +68,6 @@
 		margin: 0;
 	}
 	header input {
-		opacity: 0.5;
 		--pico-line-height: 1;
 	}
 	header div {
@@ -82,6 +82,9 @@
 		max-height: 100%;
 		margin: 0 auto;
 		display: block;
+	}
+	.disabled {
+		opacity: 0.3;
 	}
 	.picking header div {
 		opacity: 1;
