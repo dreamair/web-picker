@@ -30,6 +30,16 @@
 	$: postfix = postfixes[field?.type as keyof typeof postfixes]
 	$: hasPostfix = postfix && postfix.test(text)
 
+	const mds = [
+		/!?\[([^\]\n]*)\]\(\S+\)/gm,
+		/\*\*([^*\n]+)\*\*/gm,
+		/\*([^*\n]+)\*/gm,
+		/```([^`]+)```/gm,
+		/`([^`\n]+)`/gm,
+	]
+	$: plain = mds.reduce((t, pattern) => t.replaceAll(pattern, '$1'), text)
+	$: hasMd = plain !== text
+
 	const updateData = (value?: string) => {
 		if (!value) return
 		data.update(fields => updateField(fields, key, { value }))
@@ -56,6 +66,9 @@
 	}
 	const onPostfix = () => {
 		updateData(text.match(postfix)?.[1].trim())
+	}
+	const onMd = () => {
+		updateData(plain)
 	}
 	const onRemove = () => {
 		data.update(fields => removeField(fields, key))
@@ -87,6 +100,10 @@
 					on:click={onPostfix}
 					class="outline"
 					title="Keep only the postfix.">↦</button>
+			{/if}
+			{#if hasMd}
+				<button on:click={onMd} class="outline" title="Remove Markdown syntax."
+					>[]</button>
 			{/if}
 			<button
 				on:click={onPick}
