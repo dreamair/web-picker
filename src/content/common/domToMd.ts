@@ -1,25 +1,34 @@
 const tagHandlers = {
-	['#text']: (n: Node) => n.textContent?.replace(/\s+/g, ' ') ?? '',
+	['#text']: (n: Node) =>
+		n.parentElement?.innerText.includes(n.textContent ?? '')
+			? n.textContent?.replace(/\s+/g, ' ') ?? ''
+			: '',
 	['BR']: () => '\n',
-	['P']: (n: HTMLParagraphElement) => `\n\n${childNodesToMd(n)}\n\n`,
-	['DIV']: (n: HTMLDivElement) => `\n${childNodesToMd(n)}\n`,
-	['UL']: (n: HTMLDivElement) => `\n${childNodesToMd(n)}\n`,
-	['OL']: (n: HTMLDivElement) => `\n${childNodesToMd(n)}\n`,
+	['P']: (n: HTMLParagraphElement) => wrapContent(n, '\n\n'),
+	['DIV']: (n: HTMLDivElement) => wrapContent(n, '\n'),
+	['UL']: (n: HTMLDivElement) => wrapContent(n, '\n'),
+	['OL']: (n: HTMLDivElement) => wrapContent(n, '\n'),
 	['LI']: (n: HTMLDivElement) => `${n.parentElement?.nodeName === 'OL'
 		? `${childIndex(n) + 1}.` : '-'} ${childNodesToMd(n)}\n`,
-	['B']: (n: HTMLElement) => `**${childNodesToMd(n)}**`,
-	['STRONG']: (n: HTMLElement) => `**${childNodesToMd(n)}**`,
-	['I']: (n: HTMLElement) => `*${childNodesToMd(n)}*`,
-	['EM']: (n: HTMLElement) => `*${childNodesToMd(n)}*`,
+	['B']: (n: HTMLElement) => wrapContent(n, '**'),
+	['STRONG']: (n: HTMLElement) => wrapContent(n, '**'),
+	['I']: (n: HTMLElement) => wrapContent(n, '*'),
+	['EM']: (n: HTMLElement) => wrapContent(n, '*'),
 	['A']: (n: HTMLAnchorElement) => `[${childNodesToMd(n)}](${n.href})`,
 	['IMG']: (n: HTMLImageElement) => `![${n.alt}](${n.src})`,
-	['CODE']: (n: HTMLElement) => `\`${childNodesToMd(n)}\``,
-	['PRE']: (n: HTMLPreElement) =>
-		`\n\`\`\`\n${n.textContent?.trim() ?? ''}\n\`\`\`\n`,
+	['CODE']: (n: HTMLElement) => wrapContent(n, '`'),
+	['PRE']: (n: HTMLPreElement) => wrapContent(n, '\n```\n'),
 } as unknown as { [nodeName: string]: (n: Node) => string }
+
+function wrapContent(n: Node | null, wrap: string) {
+	const content = childNodesToMd(n)
+	return content ? `${wrap}${content}${wrap}` : ''
+}
+
 function childIndex(n: HTMLElement) {
 	return Array.prototype.indexOf.call(n.parentNode?.children, n)
 }
+
 function nodeToMd(node?: Node | null) {
 	return node
 		? node.nodeName in tagHandlers
@@ -27,6 +36,7 @@ function nodeToMd(node?: Node | null) {
 			: childNodesToMd(node)
 		: ''
 }
+
 function nodesToMd(nodes: Node[]) {
 	let md = ''
 	nodes.forEach(n => {
@@ -39,6 +49,7 @@ function nodesToMd(nodes: Node[]) {
 	})
 	return md
 }
+
 function childNodesToMd(node?: Node | null) {
 	return node ? nodesToMd([...node.childNodes]) : ''
 }
