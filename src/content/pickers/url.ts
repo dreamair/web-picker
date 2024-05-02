@@ -36,10 +36,8 @@ function onClick(event: MouseEvent) {
 }
 
 function onMouseOver(event: MouseEvent) {
-	const targetElement = event.target as HTMLElement
-	if (targetElement.tagName !== 'A') return
-	const url = targetElement.getAttribute('href')?.trim()
-	if (!url) return
+	const targetElement = findLinkElement(event.target as HTMLElement)
+	if (!targetElement) return
 	targetElement.style.cursor = 'default'
 	const r = targetElement.getBoundingClientRect()
 	console.log(targetElement.nodeName, targetElement.childNodes.length,
@@ -49,3 +47,9 @@ function onMouseOver(event: MouseEvent) {
 	overlay = createOverlay(r)
 }
 
+function findLinkElement(element: HTMLElement | null) {
+	while (element &&
+		(element.tagName !== 'A' || !element.getAttribute('href')?.trim()))
+		element = element.parentElement
+	return element
+}
