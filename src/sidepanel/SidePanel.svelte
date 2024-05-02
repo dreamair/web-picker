@@ -3,6 +3,3 @@
 </script>
 
 <Fields />
-
-<style>
-</style>
