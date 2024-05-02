@@ -9,16 +9,19 @@ export function pickText(field: Field) {
 		callback = (text: string) => {
 			resolve({ action: 'setField', payload: { ...field, value: text } })
 		}
-		document.body.addEventListener('click', onClick)
+		document.body.addEventListener('click', onClick, true)
 		document.body.addEventListener('mouseover', onMouseOver)
 		document.addEventListener('selectionchange', onSelectionChange)
 	})
 }
 
 let overlay: HTMLElement | null = null
+let element: HTMLElement | null = null
 
 function onClick(event: MouseEvent) {
 	event.preventDefault()
+	event.stopImmediatePropagation()
+	event.stopPropagation()
 	document.body.removeEventListener('click', onClick)
 	document.body.removeEventListener('mouseover', onMouseOver)
 	document.removeEventListener('selectionchange', onSelectionChange)
@@ -26,8 +29,8 @@ function onClick(event: MouseEvent) {
 	if (!overlay) return
 	overlay?.remove()
 	overlay = null
-	const targetElement = event.target as HTMLElement
-	const text = domToMd(targetElement)
+	if (!element) return
+	const text = domToMd(element)
 	if (!text) return
 	callback(text)
 }
@@ -41,6 +44,7 @@ function onMouseOver(event: MouseEvent) {
 	const r = targetElement.getBoundingClientRect()
 	console.log(targetElement.nodeName, targetElement.childNodes.length,
 		targetElement.children.length)
+	element = targetElement
 	if (overlay) overlay.remove()
 	overlay = createOverlay(r)
 }

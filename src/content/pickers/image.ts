@@ -14,27 +14,26 @@ export function pickImage(field: Field) {
 				} as ImageField
 			})
 		}
-		document.body.addEventListener('click', onClick)
+		document.body.addEventListener('click', onClick, true)
 		document.body.addEventListener('mouseover', onMouseOver)
 	})
 }
 
 let overlay: HTMLElement | null = null
+let element: HTMLImageElement | null = null
 
 function onClick(event: MouseEvent) {
 	event.preventDefault()
+	event.stopImmediatePropagation()
+	event.stopPropagation()
 	document.body.removeEventListener('click', onClick)
 	document.body.removeEventListener('mouseover', onMouseOver)
 	document.getSelection()?.removeAllRanges()
 	if (!overlay) return
 	overlay?.remove()
 	overlay = null
-	const targetElement = event.target as HTMLElement
-	if (targetElement.tagName !== 'IMG') return
-	const url = targetElement.getAttribute('src')?.trim()
-	if (!url) return
-	callback(new URL(url, location.href).href,
-		targetElement.getAttribute('alt')?.trim())
+	if (!element) return
+	callback(element.src, element.alt?.trim())
 }
 
 function onMouseOver(event: MouseEvent) {
@@ -46,6 +45,7 @@ function onMouseOver(event: MouseEvent) {
 	const r = targetElement.getBoundingClientRect()
 	console.log(targetElement.nodeName, targetElement.childNodes.length,
 		targetElement.children.length)
+	element = targetElement as HTMLImageElement
 	if (overlay) overlay.remove()
 	overlay = createOverlay(r)
 }

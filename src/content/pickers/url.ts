@@ -11,26 +11,28 @@ export function pickUrl(field: Field) {
 				payload: { ...field, value: url, source: location.href }
 			})
 		}
-		document.body.addEventListener('click', onClick)
+		document.body.addEventListener('click', onClick, true)
 		document.body.addEventListener('mouseover', onMouseOver)
 	})
 }
 
 let overlay: HTMLElement | null = null
+let element: HTMLAnchorElement | null = null
 
 function onClick(event: MouseEvent) {
 	event.preventDefault()
+	event.stopImmediatePropagation()
+	event.stopPropagation()
 	document.body.removeEventListener('click', onClick)
 	document.body.removeEventListener('mouseover', onMouseOver)
 	document.getSelection()?.removeAllRanges()
 	if (!overlay) return
 	overlay?.remove()
 	overlay = null
-	const targetElement = event.target as HTMLElement
-	if (targetElement.tagName !== 'A') return
-	const url = targetElement.getAttribute('href')?.trim()
+	if (!element) return
+	const url = element.href.trim()
 	if (!url) return
-	callback(new URL(url, location.href).href)
+	callback(url)
 }
 
 function onMouseOver(event: MouseEvent) {
@@ -42,6 +44,7 @@ function onMouseOver(event: MouseEvent) {
 	const r = targetElement.getBoundingClientRect()
 	console.log(targetElement.nodeName, targetElement.childNodes.length,
 		targetElement.children.length)
+	element = targetElement as HTMLAnchorElement
 	if (overlay) overlay.remove()
 	overlay = createOverlay(r)
 }

@@ -24,7 +24,6 @@ export function createOverlay(r: DOMRect) {
 		position: 'absolute',
 		top: r.top + window.scrollY, left: r.left + window.scrollX,
 		width: r.width, height: r.height,
-		pointerEvents: 'none',
 		zIndex: '999999999',
 		backgroundColor: 'rgba(255, 0, 0, 0.1)',
 		border: '1px solid red',
