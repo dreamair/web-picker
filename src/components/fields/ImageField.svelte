@@ -1,55 +1,31 @@
 <script lang="ts">
-	import type { ChangeEventHandler } from 'svelte/elements'
 	import type { Writable } from 'svelte/store'
-	import type { Command, Field } from '../../common/data.js'
-	import { removeField, toggleCommand } from '../../common/data.js'
+	import type { Command, Field, ImageField } from '../../common/data.js'
+	import { toggleCommand } from '../../common/data.js'
+	import FieldHeader from './FieldHeader.svelte'
 
 	export let key: string
 	export let data: Writable<Field[]>
 	export let activeCommand: Writable<Command | null>
 	export let isEditMode = false
 
-	let isKeyValid = true
+	$: field = $data.find(f => f.name === key) as ImageField | null
 
-	$: field = $data.find(f => f.name === key)
-
-	const onKeyChanged: ChangeEventHandler<HTMLInputElement> = event => {
-		const newKey = event.currentTarget.value
-		if (newKey === key) return
-		isKeyValid = !$data.find(f => f.name === newKey)
-		console.log('Key changed:', key)
-	}
-	const onPick = () => {
-		activeCommand.update(toggleCommand({ key, action: 'pick' }))
-		console.log('Picked:', key)
-	}
 	const onScreenshot = () => {
 		activeCommand.update(toggleCommand({ key, action: 'pick-screenshot' }))
 		console.log('Picked:', key)
 	}
-	const onRemove = () => {
-		data.update(fields => removeField(fields, key))
-		console.log('Removed:', key)
-	}
 </script>
 
-<article class:picking={$activeCommand?.key === key}>
-	<header>
-		{#if isEditMode}
-			<input
-				type="text"
-				value={key}
-				on:change={onKeyChanged}
-				aria-label="Field key"
-				aria-invalid={isKeyValid ? undefined : true} />
-			<button on:click={onRemove} class="outline" title="Remove this field."
-				>❌</button>
-		{:else}
-			<div>{key}</div>
-			<button on:click={onScreenshot} class="outline">✂️</button>
-			<button on:click={onPick} class="outline">📌</button>
-		{/if}
-	</header>
+<article>
+	<FieldHeader
+		{key}
+		{data}
+		{activeCommand}
+		{isEditMode}
+		pickTitle="Pick an image on the current Web page.">
+		<button on:click={onScreenshot} class="outline">✂️</button>
+	</FieldHeader>
 	<img
 		src={field?.value ? field.value : '/src/assets/placeholder.svg'}
 		alt="picked"
@@ -60,23 +36,6 @@
 	article {
 		margin: 0 0 8px;
 	}
-	header {
-		display: flex;
-		align-items: center;
-	}
-	input {
-		margin: 0;
-	}
-	header input {
-		--pico-line-height: 1;
-	}
-	header div {
-		font-size: 1rem;
-		flex: auto;
-		padding: var(--pico-form-element-spacing-vertical)
-			var(--pico-form-element-spacing-horizontal);
-		opacity: 0.5;
-	}
 	img {
 		max-width: 100%;
 		max-height: 100%;
@@ -85,11 +44,5 @@
 	}
 	.disabled {
 		opacity: 0.3;
-	}
-	.picking header div {
-		opacity: 1;
-	}
-	.picking header input {
-		opacity: 1;
 	}
 </style>
