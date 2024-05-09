@@ -4,7 +4,7 @@
 
 // Some global styles on the page
 import type { Message } from '../common/data'
-import { pickers } from './pickers/index.js'
+import { cancelPickers, pickers } from './pickers/index.js'
 import './styles.css'
 
 // Some JS on the page
@@ -18,9 +18,13 @@ chrome.runtime.onMessage.addListener(async ({ action, payload }: Message) => {
 	const picker: keyof typeof pickers = action === 'pick'
 		? payload.type
 		: action in pickers ? action : null
-	console.log('pick', picker, action, payload)
 	if (picker in pickers) {
+		console.log('pick', picker, action, payload)
 		const msg = await pickers[picker](payload)
 		chrome.runtime.sendMessage(msg).catch(console.error)
+	}
+	if (action === 'cancel-pickers') {
+		console.log('cancel', payload)
+		cancelPickers()
 	}
 })

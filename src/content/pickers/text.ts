@@ -1,64 +1,16 @@
-import type { Field, Message } from '../../common/data.js'
-import { createOverlay, hasText } from '../../common/dom.js'
+import type { Field } from '../../common/data.js'
+import { hasText } from '../../common/dom.js'
 import { domToMd } from '../common/domToMd.js'
+import { pickElement } from './pickElement.js'
 
-let callback: (text: string) => void
-
-export function pickText(field: Field) {
-	return new Promise<Message>((resolve) => {
-		callback = (text: string) => {
-			resolve({ action: 'setField', payload: { ...field, value: text } })
-		}
-		document.body.addEventListener('click', onClick, true)
-		document.body.addEventListener('mouseover', onMouseOver)
-		document.addEventListener('selectionchange', onSelectionChange)
+export async function pickText(field: Field) {
+	const element = await pickElement(elements => {
+		const element = elements.find(hasText)
+		return element && element.innerText.trim() ? element : null
 	})
+	const value = domToMd(element)
+	return value
+		? { action: 'setField', payload: { ...field, value } }
+		: { action: 'cancel', payload: field }
 }
-
-let overlay: HTMLElement | null = null
-let element: HTMLElement | null = null
-
-function onClick(event: MouseEvent) {
-	event.preventDefault()
-	event.stopImmediatePropagation()
-	event.stopPropagation()
-	document.body.removeEventListener('click', onClick)
-	document.body.removeEventListener('mouseover', onMouseOver)
-	document.removeEventListener('selectionchange', onSelectionChange)
-	document.getSelection()?.removeAllRanges()
-	if (!overlay) return
-	overlay?.remove()
-	overlay = null
-	if (!element) return
-	const text = domToMd(element)
-	if (!text) return
-	callback(text)
-}
-
-function onMouseOver(event: MouseEvent) {
-	const targetElement = event.target as HTMLElement
-	if (!hasText(targetElement)) return
-	const elementContent = targetElement.innerText.trim()
-	if (!elementContent) return
-	targetElement.style.cursor = 'text'
-	const r = targetElement.getBoundingClientRect()
-	console.log(targetElement.nodeName, targetElement.childNodes.length,
-		targetElement.children.length)
-	element = targetElement
-	if (overlay) overlay.remove()
-	overlay = createOverlay(r)
-}
-
-function onSelectionChange() {
-	const selection = document.getSelection()
-	if (selection && selection.toString()) {
-		console.log(selection.toString())
-		callback(selection.toString())
-		document.body.removeEventListener('mouseover', onMouseOver)
-		overlay?.remove()
-		overlay = null
-	}
-}
-
-
 

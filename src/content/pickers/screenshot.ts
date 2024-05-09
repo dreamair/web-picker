@@ -4,22 +4,41 @@ import { style } from '../../common/dom.js'
 
 let curtainOverlay: HTMLElement | null = null
 let areaOverlay: HTMLElement | null = null
-let callback: (data: Area) => void
+let callback: (area: Area | null) => void
 
 export function pickScreenshot(field: Field) {
 	return new Promise<Message>((resolve) => {
 		callback = area => {
-			setTimeout(() => {
-				resolve({ action: 'takeScreenshot', payload: { field, area } })
-			}, 100)
+			cleanup()
+			if (area) {
+				setTimeout(() => {
+					resolve({ action: 'takeScreenshot', payload: { field, area } })
+				}, 100)
+			}
+			else {
+				resolve({ action: 'cancel', payload: field })
+			}
 		}
 		if (curtainOverlay) curtainOverlay.remove()
 		curtainOverlay = document.createElement('div')
 		curtainOverlay.className = 'capture-overlay'
 		document.body.appendChild(curtainOverlay)
-		document.body.removeEventListener('mousedown', onMarkStart)
 		document.body.addEventListener('mousedown', onMarkStart)
 	})
+}
+
+export function cancelScreenshotPicker() {
+	cleanup()
+}
+
+function cleanup() {
+	document.body.removeEventListener('mousedown', onMarkStart)
+	document.body.removeEventListener('mousemove', onMarking)
+	document.body.removeEventListener('mouseup', onMarkEnd)
+	areaOverlay?.remove()
+	areaOverlay = null
+	curtainOverlay?.remove()
+	curtainOverlay = null
 }
 
 function onMarkStart(event: MouseEvent) {
@@ -60,17 +79,12 @@ function onMarking(event: MouseEvent) {
 function onMarkEnd(event: MouseEvent) {
 	event.preventDefault()
 	event.stopPropagation()
-	document.body.removeEventListener('mousemove', onMarking)
-	document.body.removeEventListener('mouseup', onMarkEnd)
-
-	if (!areaOverlay) return
-	const r = areaOverlay.getBoundingClientRect()
-	const s = window.devicePixelRatio
-
-	areaOverlay.remove()
-	areaOverlay = null
-	curtainOverlay?.remove()
-	curtainOverlay = null
-
-	callback?.(scaleArea(r, s))
+	if (areaOverlay) {
+		const r = areaOverlay.getBoundingClientRect()
+		const s = window.devicePixelRatio
+		callback(scaleArea(r, s))
+	}
+	else {
+		callback(null)
+	}
 }
