@@ -91,7 +91,6 @@ export function imageField(name: string, url?: string, baseUrl?: string) {
 
 export const fieldLists = {
 	default: [
-		{ name: 'price', type: 'number' },
 		{ name: 'title', type: 'string' },
 		{ name: 'description', type: 'text' },
 		{ name: 'image', type: 'image' },
@@ -164,6 +163,18 @@ export function exportCsv(fields: Field[], inclHeaders = true) {
 	return inclHeaders
 		? `${values}\n`
 		: `${fields.map(field => field.name.trim()).join(',')}\n${values}\n`
+}
+
+export function exportMd(fields: Field[]) {
+	return fields
+		.map(f => {
+			const name = f.name.trim()
+			const value = f.value && typeof f.value === 'string'
+				? f.value.trim()
+				: f.value ?? ''
+			return !name || !value ? '' : `### ${name}\n${value}\n`
+		})
+		.join('\n')
 }
 
 export type Command = {

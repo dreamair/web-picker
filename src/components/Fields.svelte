@@ -1,5 +1,12 @@
 <script lang="ts">
-	import { activeCommand, data, exportCsv, fieldLists } from '../common/data.js'
+	import {
+		activeCommand,
+		data,
+		exportCsv,
+		exportJson,
+		exportMd,
+		fieldLists,
+	} from '../common/data.js'
 	import { fieldComponents } from './fields/index.js'
 
 	let fieldSetKey: keyof typeof fieldLists = 'default'
@@ -25,15 +32,25 @@
 		activeCommand.set({ action: 'pick-pageData' })
 	}
 
-	const onCopy = () => {
-		data.subscribe(async d => {
-			try {
-				navigator.clipboard.writeText(exportCsv(d))
-				console.log('Data copied to clipboard')
-			} catch (err) {
-				console.error('Failed to copy data: ', err)
-			}
-		})
+	const copyToClipboard = async (text: string) => {
+		try {
+			await navigator.clipboard.writeText(text)
+			console.log('Data copied to clipboard')
+		} catch (err) {
+			console.error('Failed to copy data: ', err)
+		}
+	}
+
+	const onCopyJson = () => {
+		data.subscribe(d => copyToClipboard(exportJson(d)))()
+	}
+
+	const onCopyCsv = () => {
+		data.subscribe(d => copyToClipboard(exportCsv(d)))()
+	}
+
+	const onCopyMd = () => {
+		data.subscribe(d => copyToClipboard(exportMd(d)))()
 	}
 
 	const onClear = () => {
@@ -71,8 +88,23 @@
 			</div>
 		{:else}
 			<div>
-				<button on:click={onCopy} title="Copy the data to the clipboard.">
-					📋
+				<button
+					class="copy"
+					on:click={onCopyJson}
+					title="Copy the data in JSON format to the clipboard.">
+					JSON
+				</button>
+				<button
+					class="copy"
+					on:click={onCopyCsv}
+					title="Copy the data in CSV format to the clipboard.">
+					CSV
+				</button>
+				<button
+					class="copy"
+					on:click={onCopyMd}
+					title="Copy the data in Markdown format to the clipboard.">
+					MD
 				</button>
 			</div>
 			<div>
@@ -116,5 +148,9 @@
 		opacity: 1;
 		font-size: 1.5em;
 		font-weight: bold;
+	}
+	button.copy {
+		font-size: 1em;
+		font-weight: normal;
 	}
 </style>
