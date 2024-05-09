@@ -1,16 +1,11 @@
 <script lang="ts">
-	import {
-		activeCommand,
-		data,
-		exportFields,
-		fieldSets,
-	} from '../common/data.js'
+	import { activeCommand, data, exportCsv, fieldLists } from '../common/data.js'
 	import { fieldComponents } from './fields/index.js'
 
-	let fieldSetKey: keyof typeof fieldSets = 'default'
+	let fieldSetKey: keyof typeof fieldLists = 'default'
 
 	$: data.update(fields =>
-		fieldSets[fieldSetKey].map(field => {
+		fieldLists[fieldSetKey].map(field => {
 			const f = fields.find(f => f.name === field.name)
 			return f ? { ...f, ...field } : field
 		}),
@@ -33,7 +28,7 @@
 	const onCopy = () => {
 		data.subscribe(async d => {
 			try {
-				navigator.clipboard.writeText(JSON.stringify(exportFields(d), null, 2))
+				navigator.clipboard.writeText(exportCsv(d))
 				console.log('Data copied to clipboard')
 			} catch (err) {
 				console.error('Failed to copy data: ', err)
@@ -48,7 +43,12 @@
 
 <div>
 	<header>
-		<select name="select" aria-label="Select" required bind:value={fieldSetKey}>
+		<select
+			name="select"
+			aria-label="Select"
+			required
+			bind:value={fieldSetKey}
+			class:edit-mode={isEditMode}>
 			<option value="default">General Web Page</option>
 			<option value="product">Product Page</option>
 			<option>TODO: Document,...</option>
@@ -97,6 +97,10 @@
 	}
 	select {
 		margin: 0;
+		color: var(--pico-secondary);
+	}
+	select.edit-mode {
+		color: var(--pico-primary);
 	}
 	footer {
 		display: flex;

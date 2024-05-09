@@ -14,6 +14,13 @@ export interface TextField {
 	source?: string
 }
 
+export interface NumberField {
+	type: 'number'
+	name: string
+	value?: number
+	source?: string
+}
+
 export interface UrlField {
 	type: 'url'
 	name: string
@@ -29,7 +36,8 @@ export interface ImageField {
 	alt?: string
 }
 
-export type Field = StringField | TextField | ImageField | UrlField
+export type Field = StringField | TextField | NumberField |
+	ImageField | UrlField
 
 export function isStringField(field?: Field): field is StringField {
 	return field?.type === 'string'
@@ -55,6 +63,12 @@ export function textField(name: string, value?: string) {
 	return value ? { type: 'text', name, value } : undefined
 }
 
+export function numberField(name: string, value?: string) {
+	return value
+		? { type: 'number', name, value: value ? parseInt(value) : undefined }
+		: undefined
+}
+
 export function urlField(name: string, url?: string, baseUrl?: string) {
 	return url
 		? {
@@ -75,24 +89,25 @@ export function imageField(name: string, url?: string, baseUrl?: string) {
 		: undefined
 }
 
-export const fieldSets = {
+export const fieldLists = {
 	default: [
-		{ name: 'url', type: 'url' },
+		{ name: 'price', type: 'number' },
 		{ name: 'title', type: 'string' },
 		{ name: 'description', type: 'text' },
 		{ name: 'image', type: 'image' },
+		{ name: 'url', type: 'url' },
 	],
 	product: [
-		{ name: 'url', type: 'url' },
 		{ name: 'title', type: 'string' },
 		{ name: 'description', type: 'text' },
 		{ name: 'image', type: 'image' },
-		{ name: 'price', type: 'string' },
+		{ name: 'price', type: 'number' },
+		{ name: 'url', type: 'url' },
 	],
 } satisfies Record<string, Field[]>
 
 
-export const data = writable<Field[]>(fieldSets.default)
+export const data = writable<Field[]>(fieldLists.default)
 
 
 export function getField(fields: Field[], name: string) {
@@ -121,8 +136,8 @@ export function removeField(fields: Field[], name: string) {
 	return newFields
 }
 
-export function exportFields(fields: Field[]) {
-	return fields.reduce((obj, field) => {
+export function exportJson(fields: Field[]) {
+	const obj = fields.reduce((obj, field) => {
 		if (!field.name) return obj
 		if (field.value === undefined || field.value === null) return obj
 		const val = { ...field } as Omit<Field, 'name'> & { name?: string }
@@ -134,6 +149,20 @@ export function exportFields(fields: Field[]) {
 		delete val.name
 		return { ...obj, [field.name.trim()]: val }
 	}, {} as Record<string, Omit<Field, 'name'>>)
+	return JSON.stringify(obj, null, 2)
+}
+
+export function exportCsv(fields: Field[], inclHeaders = true) {
+	fields = fields.map(f => ({ ...f, name: f.name.trim() })).filter(f => f.name)
+	const values = fields
+		.map(f => typeof f.value === 'string' ? f.value.trim() : f.value)
+		.map(v => v && typeof v === 'string'
+			? `"${v}"`
+			: typeof v === 'number' ? `${v}` : '')
+		.join(',')
+	return inclHeaders
+		? `${values}\n`
+		: `${fields.map(field => field.name.trim()).join(',')}\n${values}\n`
 }
 
 export type Command = {

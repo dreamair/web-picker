@@ -3,7 +3,6 @@
 	import type { Writable } from 'svelte/store'
 	import type { Command, Field } from '../../common/data'
 	import { removeField, toggleCommand, updateField } from '../../common/data.js'
-	import { autoHeight } from '../autoHeight.js'
 
 	export let key: string
 	export let data: Writable<Field[]>
@@ -13,33 +12,7 @@
 	let isKeyValid = true
 
 	$: field = $data.find(f => f.name === key)
-	$: text =
-		typeof field?.value === 'number' ? `${field.value}` : field?.value ?? ''
-
-	const prefixes = {
-		url: /^([\w:/.-]+)\?/,
-		string: /([^|-]+)[|-]/,
-	}
-
-	$: prefix = prefixes[field?.type as keyof typeof prefixes]
-	$: hasPrefix = prefix && prefix.test(text)
-
-	const postfixes = {
-		string: /[|-](.*)/,
-	}
-
-	$: postfix = postfixes[field?.type as keyof typeof postfixes]
-	$: hasPostfix = postfix && postfix.test(text)
-
-	const mds = [
-		/!?\[([^\]\n]*)\]\(\S+\)/gm,
-		/\*\*([^*\n]+)\*\*/gm,
-		/\*([^*\n]+)\*/gm,
-		/```([^`]+)```/gm,
-		/`([^`\n]+)`/gm,
-	]
-	$: plain = mds.reduce((t, pattern) => t.replaceAll(pattern, '$1'), text)
-	$: hasMd = plain !== text
+	$: value = typeof field?.value === 'number' ? field.value : -1
 
 	const updateData = (value?: string) => {
 		if (!value) return
@@ -52,24 +25,15 @@
 		isKeyValid = !$data.find(f => f.name === newKey)
 		console.log('Key changed:', key)
 	}
-	const onTextChanged: ChangeEventHandler<
+	const onChanged: ChangeEventHandler<
 		HTMLInputElement | HTMLTextAreaElement
 	> = ({ currentTarget }) => {
 		updateData(currentTarget.value)
-		console.log('Text changed:', key)
+		console.log('Number changed:', key)
 	}
 	const onPick = () => {
 		activeCommand.update(toggleCommand({ key, action: 'pick' }))
 		console.log('Picked:', key)
-	}
-	const onPrefix = () => {
-		updateData(text.match(postfix)?.[1].trim())
-	}
-	const onPostfix = () => {
-		updateData(text.match(prefix)?.[1].trim())
-	}
-	const onMd = () => {
-		updateData(plain)
 	}
 	const onRemove = () => {
 		data.update(fields => removeField(fields, key))
@@ -90,38 +54,16 @@
 				>❌</button>
 		{:else}
 			<div>{key}</div>
-			{#if hasPrefix}
-				<button on:click={onPrefix} class="outline" title="Remove the prefix."
-					>↤</button>
-			{/if}
-			{#if hasPostfix}
-				<button on:click={onPostfix} class="outline" title="Remove the postfix."
-					>↦</button>
-			{/if}
-			{#if hasMd}
-				<button on:click={onMd} class="outline" title="Remove Markdown syntax."
-					>[-]</button>
-			{/if}
 			<button
 				on:click={onPick}
 				class="outline"
-				title="Pick or select a text on the current Web page.">📌</button>
+				title="Pick or select a number on the current Web page.">📌</button>
 		{/if}
 	</header>
 	{#if !field}
 		<div>Field not found!</div>
-	{:else if field.type === 'text'}
-		<textarea
-			value={text}
-			on:input={onTextChanged}
-			use:autoHeight
-			disabled={isEditMode} />
 	{:else}
-		<input
-			type="text"
-			value={text}
-			on:input={onTextChanged}
-			disabled={isEditMode} />
+		<input type="number" {value} on:input={onChanged} disabled={isEditMode} />
 	{/if}
 </article>
 
@@ -133,12 +75,8 @@
 		display: flex;
 		align-items: center;
 	}
-	input,
-	textarea {
+	input {
 		margin: 0;
-	}
-	textarea {
-		max-height: 200px;
 	}
 	header input {
 		--pico-line-height: 1;
@@ -156,8 +94,7 @@
 	.picking header div {
 		opacity: 1;
 	}
-	.picking > input,
-	.picking > textarea {
+	.picking > input {
 		--pico-border-color: var(--pico-form-element-focus-color);
 	}
 </style>
