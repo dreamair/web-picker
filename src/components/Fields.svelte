@@ -1,6 +1,8 @@
 <script lang="ts">
+	import type { FieldType } from '../common/data.js'
 	import {
 		activeCommand,
+		currentFieldListKey,
 		data,
 		exportCsv,
 		exportJson,
@@ -9,15 +11,6 @@
 	} from '../common/data.js'
 	import { fieldComponents } from './fields/index.js'
 
-	let fieldSetKey: keyof typeof fieldLists = 'default'
-
-	$: data.update(fields =>
-		fieldLists[fieldSetKey].map(field => {
-			const f = fields.find(f => f.name === field.name)
-			return f ? { ...f, ...field } : field
-		}),
-	)
-
 	let isEditMode = false
 
 	const toggleEditMode = () => {
@@ -25,7 +18,10 @@
 	}
 
 	const onAdd = () => {
-		alert('TODO: Add a new field.')
+		const name = prompt('Enter the name of the new field:', 'new field')
+		const type = prompt('Enter the type of the new field:', 'string')
+		if (name && type)
+			data.update(fields => [...fields, { name, type: type as FieldType }])
 	}
 
 	const onPageData = () => {
@@ -60,17 +56,19 @@
 
 <div>
 	<header>
-		<select
-			name="select"
-			aria-label="Select"
-			required
-			bind:value={fieldSetKey}
-			class:edit-mode={isEditMode}>
-			<option value="default">General Web Page</option>
-			<option value="product">Product Page</option>
-			<option>TODO: Document,...</option>
-			<option>TODO: new field set...</option>
-		</select>
+		{#if $fieldLists}
+			<select
+				name="select"
+				aria-label="Select"
+				required
+				bind:value={$currentFieldListKey}
+				class:edit-mode={isEditMode}>
+				{#each Object.keys($fieldLists) as key}
+					<option value={key}>{key}</option>
+				{/each}
+				<option value="--new--">new list</option>
+			</select>
+		{/if}
 		<button on:click={toggleEditMode} class="outline">✏️</button>
 	</header>
 	{#each $data as field}

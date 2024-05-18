@@ -1,4 +1,4 @@
-import { writable } from 'svelte/store'
+import { derived, writable } from 'svelte/store'
 
 export interface StringField {
 	type: 'string'
@@ -38,6 +38,8 @@ export interface ImageField {
 
 export type Field = StringField | TextField | NumberField |
 	ImageField | UrlField
+
+export type FieldType = Field['type']
 
 export function isStringField(field?: Field): field is StringField {
 	return field?.type === 'string'
@@ -89,7 +91,7 @@ export function imageField(name: string, url?: string, baseUrl?: string) {
 		: undefined
 }
 
-export const fieldLists = {
+export const defaultFieldLists = {
 	default: [
 		{ name: 'title', type: 'string' },
 		{ name: 'description', type: 'text' },
@@ -105,9 +107,65 @@ export const fieldLists = {
 	],
 } satisfies Record<string, Field[]>
 
+export const fieldLists = writable<Record<string, Field[]>>()
 
-export const data = writable<Field[]>(fieldLists.default)
+chrome.storage.sync.get('lists')
+	.then(({ lists }) => {
+		fieldLists.set(lists || defaultFieldLists)
+	})
 
+fieldLists.subscribe(lists => {
+	chrome.storage.sync.set({ lists })
+})
+
+export const currentFieldListKey = writable<string>()
+
+chrome.storage.sync.get('current')
+	.then(({ current }) => {
+		if (current) currentFieldListKey.set(current)
+	})
+
+currentFieldListKey.subscribe(current => {
+	chrome.storage.sync.set({ current })
+})
+
+export const data = writable<Field[]>(defaultFieldLists.default)
+
+derived([fieldLists, currentFieldListKey],
+	([$fieldLists, $currentFieldListKey]) => $fieldLists?.[$currentFieldListKey])
+	.subscribe(fieldList => {
+		if (!fieldList) return
+		data.update(fields => fieldList.map(field => {
+			const f = fields.find(f => f.name === field.name && f.type === field.type)
+			return f ? { ...(f as any), ...field } : field
+		}))
+	})
+
+derived([data, fieldLists, currentFieldListKey],
+	([$data, $fieldLists, $currentFieldListKey]) => {
+		if (!$data || !$fieldLists || !$currentFieldListKey) return null
+		const fieldList = $fieldLists[$currentFieldListKey]
+		if (equalFieldLists($data, fieldList))
+			return null
+		return {
+			...$fieldLists,
+			[$currentFieldListKey]: $data.map(f => ({ name: f.name, type: f.type }))
+		}
+	})
+	.subscribe(lists => {
+		if (lists) chrome.storage.sync.set({ lists })
+	})
+
+export function equalFieldLists(a: Field[], b: Field[]) {
+	if (!a || !b) return false
+	if (a.length !== b.length) return false
+	for (let i = 0; i < a.length; i++) {
+		const fa = a[i]
+		const fb = b[i]
+		if (fa.name !== fb.name || fa.type !== fb.type) return false
+	}
+	return true
+}
 
 export function getField(fields: Field[], name: string) {
 	return fields.find(f => f.name === name)
