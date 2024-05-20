@@ -2,7 +2,7 @@ import { pickImage } from './image.js'
 import { pickNumber } from './number.js'
 import { pickPageData } from './pageData.js'
 import { cancelElementPicker } from './pickElement.js'
-import { pickScreenshot } from './screenshot.js'
+import { cancelScreenshotPicker, pickScreenshot } from './screenshot.js'
 import { pickText } from './text.js'
 import { pickUrl } from './url.js'
 
@@ -18,4 +18,5 @@ export const pickers = {
 
 export function cancelPickers() {
 	cancelElementPicker()
+	cancelScreenshotPicker()
 }

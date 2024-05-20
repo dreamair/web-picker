@@ -5,6 +5,5 @@ export type Command = {
 }
 
 export function toggleCommand(cmd: Command) {
-	return (lastCmd: Command | null) =>
-		lastCmd?.key === cmd.key && lastCmd?.action === cmd.action ? null : cmd
+	return (lastCmd: Command | null) => lastCmd?.key === cmd.key ? null : cmd
 }

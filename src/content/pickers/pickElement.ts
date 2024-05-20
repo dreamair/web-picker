@@ -3,13 +3,13 @@ import { createOverlay } from '../../common/dom.js'
 let callback: (node: HTMLElement | null) => void
 let getElement: (elements: HTMLElement[]) => HTMLElement | null
 
-export function pickElement(
+export function pickElement<T extends HTMLElement = HTMLElement>(
 	getElementFromStack: (elements: HTMLElement[]) => HTMLElement | null) {
 	getElement = getElementFromStack
-	return new Promise<HTMLElement | null>((resolve) => {
+	return new Promise<T | null>((resolve) => {
 		callback = (node: HTMLElement | null) => {
 			cleanup()
-			resolve(node)
+			resolve(node as T)
 		}
 		document.body.addEventListener('click', onClick, true)
 		document.body.addEventListener('mousemove', onMouseMove)
