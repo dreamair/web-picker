@@ -12,15 +12,14 @@
 	export let isEditMode = false
 
 	$: field = $fields.find(f => f.name === key)
-	$: value = typeof field?.value === 'number' ? field.value : -1
-
-	const updateData = (value?: string) => {
-		if (!value) return
-		fields.update(fields => updateField(fields, key, { value }))
-	}
+	$: value = typeof field?.value === 'number' ? field.value : ''
 
 	const onChanged: ChangeEventHandler<HTMLInputElement> = event => {
-		updateData(event.currentTarget.value)
+		const str = event.currentTarget.value
+		if (!str) return
+		const value = parseFloat(str)
+		if (isNaN(value)) return
+		fields.update(fields => updateField(fields, key, { value }))
 		console.log('Number changed:', key)
 	}
 </script>

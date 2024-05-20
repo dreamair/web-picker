@@ -1,35 +1,36 @@
+import type { Schema } from './Schema.js'
 
-export interface StringField {
+export interface FieldBase {
+	name: string
+	isPassive?: boolean
+}
+
+export interface StringField extends FieldBase {
 	type: 'string'
-	name: string
 	value?: string
 	source?: string
 }
 
-export interface TextField {
+export interface TextField extends FieldBase {
 	type: 'text'
-	name: string
 	value?: string
 	source?: string
 }
 
-export interface NumberField {
+export interface NumberField extends FieldBase {
 	type: 'number'
-	name: string
 	value?: number
 	source?: string
 }
 
-export interface UrlField {
+export interface UrlField extends FieldBase {
 	type: 'url'
-	name: string
 	value?: string
 	source?: string
 }
 
-export interface ImageField {
+export interface ImageField extends FieldBase {
 	type: 'image'
-	name: string
 	value?: string
 	source?: string
 	alt?: string
@@ -112,3 +113,17 @@ export function removeField(fields: Field[], name: string) {
 	newFields.splice(idx, 1)
 	return newFields
 }
+
+export function applySchema(fields: Field[], schema?: Schema) {
+	const passiveFields = fields.map(f => ({ ...f, isPassive: true } as Field))
+	if (!schema) return passiveFields
+	const newFields = schema.map(field => {
+		const f = passiveFields.find(f =>
+			f.name === field.name && f.type === field.type)
+		if (!f) return { ...field }
+		delete f.isPassive
+		return { ...f, ...field }
+	})
+	return [...newFields, ...passiveFields.filter(f => f.isPassive)] as Field[]
+}
+

@@ -26,8 +26,6 @@ function extractNumber(text?: string | null) {
 		text = commaIdx > pointIdx ? text.replace('.', '') : text.replace(',', '')
 	if (commaIdx !== -1)
 		text = text.replace(',', '.')
-	const val = commaIdx !== -1 || pointIdx !== -1
-		? parseFloat(text)
-		: parseInt(text)
+	const val = parseFloat(text)
 	return isNaN(val) ? null : val
 }

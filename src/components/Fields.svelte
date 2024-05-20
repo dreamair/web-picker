@@ -3,8 +3,8 @@
 	import { addField } from '../model/Schema.js'
 	import { exportCsv, exportJson, exportMd } from '../service/export.js'
 	import { activeCommand } from '../state/command.js'
-	import { fields } from '../state/fields.js'
-	import { currentSchemaKey, schemas } from '../state/schemas.js'
+	import { activeFields, fields } from '../state/fields.js'
+	import { currentSchema, currentSchemaKey, schemas } from '../state/schemas.js'
 	import { fieldComponents } from './fields/index.js'
 
 	let isEditMode = false
@@ -40,19 +40,19 @@
 	}
 
 	const onCopyJson = () => {
-		fields.subscribe(d => copyToClipboard(exportJson(d)))()
+		activeFields.subscribe(d => copyToClipboard(exportJson(d)))()
 	}
 
 	const onCopyCsv = () => {
-		fields.subscribe(d => copyToClipboard(exportCsv(d)))()
+		activeFields.subscribe(d => copyToClipboard(exportCsv(d)))()
 	}
 
 	const onCopyMd = () => {
-		fields.subscribe(d => copyToClipboard(exportMd(d)))()
+		activeFields.subscribe(d => copyToClipboard(exportMd(d)))()
 	}
 
 	const onClear = () => {
-		fields.update(fields => fields.map(f => ({ name: f.name, type: f.type })))
+		fields.set($currentSchema.map(f => ({ ...f })))
 	}
 </script>
 
@@ -73,7 +73,7 @@
 		{/if}
 		<button on:click={toggleEditMode} class="outline">✏️</button>
 	</header>
-	{#each $fields as field}
+	{#each $activeFields as field}
 		<svelte:component
 			this={fieldComponents[field.type]}
 			key={field.name}
