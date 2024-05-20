@@ -5,7 +5,11 @@
 	import { toggleCommand } from '../../model/Command.js'
 	import type { Field } from '../../model/Field.js'
 	import { removeField } from '../../model/Schema.js'
-	import { currentSchemaKey, schemas } from '../../state/schemas.js'
+	import {
+		currentSchemaKey,
+		renameField,
+		schemas,
+	} from '../../state/schemas.js'
 
 	export let key: string
 	export let fields: Writable<Field[]>
@@ -20,6 +24,7 @@
 		if (newKey === key) return
 		isKeyValid = !$fields.find(f => f.name === newKey)
 		console.log('Key changed:', key)
+		renameField($currentSchemaKey, key, newKey)
 	}
 	const onPick = () => {
 		activeCommand.update(toggleCommand({ key, action: 'pick' }))

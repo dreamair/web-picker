@@ -95,11 +95,7 @@ export function getField(fields: Field[], name: string) {
 }
 
 export function updateField(fields: Field[], name: string, data: object) {
-	const idx = fields.findIndex(f => f.name === name)
-	if (idx === -1) return fields
-	const newFields = [...fields]
-	newFields[idx] = { ...newFields[idx], ...data }
-	return newFields
+	return fields.map(f => f.name === name ? { ...f, ...data } : f)
 }
 
 export function updateFields(fields: Field[], newFields: Field[]) {

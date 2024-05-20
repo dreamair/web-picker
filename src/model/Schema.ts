@@ -1,6 +1,8 @@
 import type { FieldType } from './Field.js'
 
-export type Schema = { name: string; type: FieldType }[]
+export type SchemaField = { name: string; type: FieldType }
+
+export type Schema = SchemaField[]
 
 export type Schemas = Record<string, Schema>
 
@@ -31,8 +33,7 @@ export function equalSchema(a: Schema, b: Schema) {
 	return true
 }
 
-export function addField(schemas: Schemas, key: string,
-	field: { name: string; type: FieldType }) {
+export function addField(schemas: Schemas, key: string, field: SchemaField) {
 	schemas = { ...schemas }
 	schemas[key] = [...schemas[key], field]
 	return schemas
@@ -47,4 +48,17 @@ export function removeField(schemas: Schemas, key: string, fieldName: string) {
 	schemas = { ...schemas }
 	schemas[key] = newSchema
 	return schemas
+}
+
+export function updateSchemaField(schemas: Schemas, key: string,
+	fieldName: string, data: Partial<SchemaField>) {
+	const schema = schemas[key]
+	const idx = schema.findIndex(({ name }) => name === fieldName)
+	if (idx === -1) return schemas
+	const field = schema[idx]
+	if ((!data.name || field.name === data.name)
+		&& (!data.type || field.type === data.type)) return schemas
+	const newSchema = [...schema]
+	newSchema[idx] = { ...field, ...data }
+	return { ...schemas, [key]: newSchema }
 }
