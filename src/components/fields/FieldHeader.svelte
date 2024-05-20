@@ -4,7 +4,8 @@
 	import type { Command } from '../../model/Command.js'
 	import { toggleCommand } from '../../model/Command.js'
 	import type { Field } from '../../model/Field.js'
-	import { removeField } from '../../model/Field.js'
+	import { removeField } from '../../model/Schema.js'
+	import { currentSchemaKey, schemas } from '../../state/schemas.js'
 
 	export let key: string
 	export let fields: Writable<Field[]>
@@ -25,7 +26,7 @@
 		console.log('Picked:', key)
 	}
 	const onRemove = () => {
-		fields.update(fields => removeField(fields, key))
+		schemas.update(schemas => removeField(schemas, $currentSchemaKey, key))
 		console.log('Removed:', key)
 	}
 </script>

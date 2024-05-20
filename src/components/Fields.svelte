@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type { FieldType } from '../model/Field.js'
+	import { addField } from '../model/Schema.js'
 	import { exportCsv, exportJson, exportMd } from '../service/export.js'
 	import { activeCommand } from '../state/command.js'
 	import { fields } from '../state/fields.js'
@@ -14,9 +15,15 @@
 
 	const onAdd = () => {
 		const name = prompt('Enter the name of the new field:', 'new field')
-		const type = prompt('Enter the type of the new field:', 'string')
-		if (name && type)
-			fields.update(fields => [...fields, { name, type: type as FieldType }])
+		const type = prompt(
+			'Enter the type of the new field:',
+			'string',
+		) as FieldType
+		if (name && type) {
+			schemas.update(schemas =>
+				addField(schemas, $currentSchemaKey, { name, type }),
+			)
+		}
 	}
 
 	const onPageData = () => {

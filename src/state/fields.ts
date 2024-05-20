@@ -8,9 +8,9 @@ export const fields = writable<Field[]>(defaultSchemas.default)
 
 onSetup(() => {
 	// Update fields when schema changes
-	currentSchema.subscribe(schema => {
-		if (!schema) return
-		fields.update(fields => schema.map(field => {
+	currentSchema.subscribe($schema => {
+		if (!$schema) return
+		fields.update(fields => $schema.map(field => {
 			const f = fields.find(f => f.name === field.name && f.type === field.type)
 			return f ? { ...(f as any), ...field } : field
 		}))

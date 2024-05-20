@@ -31,3 +31,20 @@ export function equalSchema(a: Schema, b: Schema) {
 	return true
 }
 
+export function addField(schemas: Schemas, key: string,
+	field: { name: string; type: FieldType }) {
+	schemas = { ...schemas }
+	schemas[key] = [...schemas[key], field]
+	return schemas
+}
+
+export function removeField(schemas: Schemas, key: string, fieldName: string) {
+	const schema = schemas[key]
+	const idx = schema.findIndex(({ name }) => name === fieldName)
+	if (idx === -1) return schemas
+	const newSchema = [...schema]
+	newSchema.splice(idx, 1)
+	schemas = { ...schemas }
+	schemas[key] = newSchema
+	return schemas
+}
