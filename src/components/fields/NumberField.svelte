@@ -1,21 +1,22 @@
 <script lang="ts">
 	import type { ChangeEventHandler } from 'svelte/elements'
 	import type { Writable } from 'svelte/store'
-	import type { Command, Field } from '../../common/data'
-	import { updateField } from '../../common/data.js'
+	import type { Command } from '../../model/Command.js'
+	import type { Field } from '../../model/Field.js'
+	import { updateField } from '../../model/Field.js'
 	import FieldHeader from './FieldHeader.svelte'
 
 	export let key: string
-	export let data: Writable<Field[]>
+	export let fields: Writable<Field[]>
 	export let activeCommand: Writable<Command | null>
 	export let isEditMode = false
 
-	$: field = $data.find(f => f.name === key)
+	$: field = $fields.find(f => f.name === key)
 	$: value = typeof field?.value === 'number' ? field.value : -1
 
 	const updateData = (value?: string) => {
 		if (!value) return
-		data.update(fields => updateField(fields, key, { value }))
+		fields.update(fields => updateField(fields, key, { value }))
 	}
 
 	const onChanged: ChangeEventHandler<HTMLInputElement> = event => {
@@ -27,7 +28,7 @@
 <article class:picking={$activeCommand?.key === key}>
 	<FieldHeader
 		{key}
-		{data}
+		{fields}
 		{activeCommand}
 		{isEditMode}
 		pickTitle="Pick or select a number on the current Web page." />

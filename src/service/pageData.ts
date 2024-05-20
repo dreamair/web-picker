@@ -1,6 +1,6 @@
 import type { Writable } from 'svelte/store'
-import type { Field } from './data.js'
-import { getField, updateField } from './data.js'
+import type { Field } from '../model/Field.js'
+import { getField, updateField } from '../model/Field.js'
 
 export function fillPageData(data: Writable<Field[]>) {
 	chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
@@ -13,7 +13,7 @@ export function fillPageData(data: Writable<Field[]>) {
 				fields = updateField(fields, 'title', { value: tab.title })
 			return fields
 		})
-		chrome.tabs.sendMessage(tab.id, { action: 'pick-pageData' })
+		chrome.runtime.sendMessage({ action: 'pick-pageData', isOptional: true })
 			.catch(console.error)
 	})
 }

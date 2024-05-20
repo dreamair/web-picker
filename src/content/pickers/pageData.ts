@@ -1,7 +1,7 @@
-import type { Message } from '../../common/data.js'
 import {
 	imageField, stringField, textField, urlField
-} from '../../common/data.js'
+} from '../../model/Field.js'
+import type { Message } from '../../model/Message.js'
 import { domToMd, htmlToMd } from '../common/domToMd.js'
 
 export function pickPageData() {

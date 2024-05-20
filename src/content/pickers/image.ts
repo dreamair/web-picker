@@ -1,5 +1,6 @@
-import type { Field, ImageField, Message } from '../../common/data.js'
 import { createOverlay } from '../../common/dom.js'
+import type { Field, ImageField } from '../../model/Field.js'
+import type { Message } from '../../model/Message.js'
 
 let callback: (url: string, alt?: string | null) => void
 

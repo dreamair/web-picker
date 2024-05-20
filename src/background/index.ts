@@ -15,18 +15,20 @@ chrome.runtime.onMessage.addListener((message, sender) => {
 	// send this to the active tab
 	chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
 		const tab = tabs[0]
-		if (!tab?.id)
-			return console.error('Failed to send message: No active tab found')
+		if (!tab?.id) {
+			if (!message.isOptional)
+				console.error('Failed to send message: No active tab found')
+			return
+		}
 		console.log('sending message to tab', tab.id)
 		chrome.tabs.sendMessage(tab.id, message)
 			.catch(console.error)
 	})
 })
 
-chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
-	if (changeInfo.status === 'complete' && tab.active) {
-		chrome.runtime.sendMessage({ message: 'tabUpdated', tabId, url: tab.url })
-			.catch(console.error)
-	}
-
-})
+// chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
+// 	if (changeInfo.status === 'complete' && tab.active) {
+// 		chrome.runtime.sendMessage({ message: 'tabUpdated', tabId, url: tab.url })
+// 			.catch(console.error)
+// 	}
+// })

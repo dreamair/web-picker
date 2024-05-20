@@ -1,6 +1,8 @@
-import type { Area, Field, Message } from '../../common/data.js'
-import { scaleArea } from '../../common/data.js'
 import { style } from '../../common/dom.js'
+import type { Area } from '../../model/Area.js'
+import { scaleArea } from '../../model/Area.js'
+import type { Field } from '../../model/Field.js'
+import type { Message } from '../../model/Message.js'
 
 let curtainOverlay: HTMLElement | null = null
 let areaOverlay: HTMLElement | null = null

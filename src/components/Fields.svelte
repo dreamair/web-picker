@@ -1,14 +1,9 @@
 <script lang="ts">
-	import type { FieldType } from '../common/data.js'
-	import {
-		activeCommand,
-		currentFieldListKey,
-		data,
-		exportCsv,
-		exportJson,
-		exportMd,
-		fieldLists,
-	} from '../common/data.js'
+	import type { FieldType } from '../model/Field.js'
+	import { exportCsv, exportJson, exportMd } from '../service/export.js'
+	import { activeCommand } from '../state/command.js'
+	import { fields } from '../state/fields.js'
+	import { currentSchemaKey, schemas } from '../state/schemas.js'
 	import { fieldComponents } from './fields/index.js'
 
 	let isEditMode = false
@@ -21,7 +16,7 @@
 		const name = prompt('Enter the name of the new field:', 'new field')
 		const type = prompt('Enter the type of the new field:', 'string')
 		if (name && type)
-			data.update(fields => [...fields, { name, type: type as FieldType }])
+			fields.update(fields => [...fields, { name, type: type as FieldType }])
 	}
 
 	const onPageData = () => {
@@ -38,44 +33,44 @@
 	}
 
 	const onCopyJson = () => {
-		data.subscribe(d => copyToClipboard(exportJson(d)))()
+		fields.subscribe(d => copyToClipboard(exportJson(d)))()
 	}
 
 	const onCopyCsv = () => {
-		data.subscribe(d => copyToClipboard(exportCsv(d)))()
+		fields.subscribe(d => copyToClipboard(exportCsv(d)))()
 	}
 
 	const onCopyMd = () => {
-		data.subscribe(d => copyToClipboard(exportMd(d)))()
+		fields.subscribe(d => copyToClipboard(exportMd(d)))()
 	}
 
 	const onClear = () => {
-		data.update(fields => fields.map(f => ({ name: f.name, type: f.type })))
+		fields.update(fields => fields.map(f => ({ name: f.name, type: f.type })))
 	}
 </script>
 
 <div>
 	<header>
-		{#if $fieldLists}
+		{#if $schemas}
 			<select
 				name="select"
 				aria-label="Select"
 				required
-				bind:value={$currentFieldListKey}
+				bind:value={$currentSchemaKey}
 				class:edit-mode={isEditMode}>
-				{#each Object.keys($fieldLists) as key}
+				{#each Object.keys($schemas) as key}
 					<option value={key}>{key}</option>
 				{/each}
-				<option value="--new--">new list</option>
+				<option value="--new--">new schema</option>
 			</select>
 		{/if}
 		<button on:click={toggleEditMode} class="outline">✏️</button>
 	</header>
-	{#each $data as field}
+	{#each $fields as field}
 		<svelte:component
 			this={fieldComponents[field.type]}
 			key={field.name}
-			{data}
+			{fields}
 			{activeCommand}
 			{isEditMode} />
 	{/each}

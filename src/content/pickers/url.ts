@@ -1,4 +1,4 @@
-import type { Field } from '../../common/data.js'
+import type { Field } from '../../model/Field.js'
 import { pickElement } from './pickElement.js'
 
 export async function pickUrl(field: Field) {

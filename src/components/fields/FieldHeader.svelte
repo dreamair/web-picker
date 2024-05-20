@@ -1,11 +1,13 @@
 <script lang="ts">
 	import type { ChangeEventHandler } from 'svelte/elements'
 	import type { Writable } from 'svelte/store'
-	import type { Command, Field } from '../../common/data'
-	import { removeField, toggleCommand } from '../../common/data.js'
+	import type { Command } from '../../model/Command.js'
+	import { toggleCommand } from '../../model/Command.js'
+	import type { Field } from '../../model/Field.js'
+	import { removeField } from '../../model/Field.js'
 
 	export let key: string
-	export let data: Writable<Field[]>
+	export let fields: Writable<Field[]>
 	export let activeCommand: Writable<Command | null>
 	export let isEditMode = false
 	export let pickTitle: string | null = null
@@ -15,7 +17,7 @@
 	const onKeyChanged: ChangeEventHandler<HTMLInputElement> = event => {
 		const newKey = event.currentTarget.value
 		if (newKey === key) return
-		isKeyValid = !$data.find(f => f.name === newKey)
+		isKeyValid = !$fields.find(f => f.name === newKey)
 		console.log('Key changed:', key)
 	}
 	const onPick = () => {
@@ -23,7 +25,7 @@
 		console.log('Picked:', key)
 	}
 	const onRemove = () => {
-		data.update(fields => removeField(fields, key))
+		fields.update(fields => removeField(fields, key))
 		console.log('Removed:', key)
 	}
 </script>

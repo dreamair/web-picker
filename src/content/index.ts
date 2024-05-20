@@ -3,7 +3,7 @@
 // https://developer.chrome.com/docs/extensions/mv3/content_scripts/
 
 // Some global styles on the page
-import type { Message } from '../common/data'
+import type { Message } from '../model/Message'
 import { cancelPickers, pickers } from './pickers/index.js'
 import './styles.css'
 
