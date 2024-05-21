@@ -1,5 +1,5 @@
 import { onSetup } from '../common/setup.js'
-import { defaultSchemas } from '../model/Schema.js'
+import { defaultSchemas, newSchemaKey } from '../model/Schema.js'
 import { currentSchemaKey as schemaKey, schemas } from '../state/schemas.js'
 
 onSetup(() => {
@@ -19,6 +19,7 @@ onSetup(() => {
 		})
 
 	schemaKey.subscribe(schemaKey => {
+		if (!schemaKey || schemaKey === newSchemaKey) return
 		chrome.storage.sync.set({ schemaKey })
 	})
 

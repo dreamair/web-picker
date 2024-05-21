@@ -1,10 +1,16 @@
 <script lang="ts">
 	import type { FieldType } from '../model/Field.js'
-	import { addField } from '../model/Schema.js'
+	import { addSchemaField, newSchemaKey } from '../model/Schema.js'
 	import { exportCsv, exportJson, exportMd } from '../service/export.js'
 	import { activeCommand } from '../state/command.js'
 	import { activeFields, fields } from '../state/fields.js'
-	import { currentSchema, currentSchemaKey, schemas } from '../state/schemas.js'
+	import {
+		addSchema,
+		currentSchema,
+		currentSchemaKey,
+		removeSchema,
+		schemas,
+	} from '../state/schemas.js'
 	import { fieldComponents } from './fields/index.js'
 
 	let isEditMode = false
@@ -21,7 +27,7 @@
 		) as FieldType
 		if (name && type) {
 			schemas.update(schemas =>
-				addField(schemas, $currentSchemaKey, { name, type }),
+				addSchemaField(schemas, $currentSchemaKey, { name, type }),
 			)
 		}
 	}
@@ -54,6 +60,21 @@
 	const onClear = () => {
 		fields.set($currentSchema.map(f => ({ ...f })))
 	}
+
+	$: key = $currentSchemaKey
+	$: if (key === newSchemaKey) {
+		setTimeout(() => {
+			const newKey = prompt('Enter the name of the new schema:', 'new schema')
+			addSchema(newKey)
+		}, 0)
+	} else {
+		currentSchemaKey.set(key)
+	}
+	const onRemove = () => {
+		if (!confirm(`Are you sure you want to remove this schema '${key}'?`))
+			return
+		removeSchema(key)
+	}
 </script>
 
 <div>
@@ -63,12 +84,15 @@
 				name="select"
 				aria-label="Select"
 				required
-				bind:value={$currentSchemaKey}
+				bind:value={key}
 				class:edit-mode={isEditMode}>
 				{#each Object.keys($schemas) as key}
 					<option value={key}>{key}</option>
 				{/each}
-				<option value="--new--">new schema</option>
+				{#if isEditMode}
+					<option value={newSchemaKey} title="add a new schema..."
+						>+ ...</option>
+				{/if}
 			</select>
 		{/if}
 		<button on:click={toggleEditMode} class="outline">✏️</button>
@@ -83,8 +107,15 @@
 	{/each}
 	<footer>
 		{#if isEditMode}
+			<div></div>
 			<div>
-				<button on:click={onAdd} title="Add a new field.">+</button>
+				<button class="text-icon" on:click={onAdd} title="Add a new field."
+					>+</button>
+				{#if key !== 'default'}
+					<button
+						on:click={onRemove}
+						title="Delete all fields and remove this schema.">❌</button>
+				{/if}
 			</div>
 		{:else}
 			<div>
@@ -152,5 +183,10 @@
 	button.copy {
 		font-size: 1em;
 		font-weight: normal;
+	}
+	button.text-icon {
+		font-size: 2em;
+		font-weight: bold;
+		padding: 0 12px 4px;
 	}
 </style>

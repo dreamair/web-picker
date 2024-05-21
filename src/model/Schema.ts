@@ -22,6 +22,8 @@ export const defaultSchemas = {
 	],
 } satisfies Schemas
 
+export const newSchemaKey = '--new--'
+
 export function equalSchema(a: Schema, b: Schema) {
 	if (!a || !b) return false
 	if (a.length !== b.length) return false
@@ -33,14 +35,17 @@ export function equalSchema(a: Schema, b: Schema) {
 	return true
 }
 
-export function addField(schemas: Schemas, key: string, field: SchemaField) {
+export function addSchemaField(schemas: Schemas,
+	key: string, field: SchemaField) {
 	schemas = { ...schemas }
 	schemas[key] = [...schemas[key], field]
 	return schemas
 }
 
-export function removeField(schemas: Schemas, key: string, fieldName: string) {
+export function removeSchemaField(schemas: Schemas,
+	key: string, fieldName: string) {
 	const schema = schemas[key]
+	if (!schema) return schemas
 	const idx = schema.findIndex(({ name }) => name === fieldName)
 	if (idx === -1) return schemas
 	const newSchema = [...schema]

@@ -4,11 +4,9 @@
 	import type { Command } from '../../model/Command.js'
 	import { toggleCommand } from '../../model/Command.js'
 	import type { Field } from '../../model/Field.js'
-	import { removeField } from '../../model/Schema.js'
 	import {
-		currentSchemaKey,
-		renameField,
-		schemas,
+		removeFieldInCurrentSchema,
+		renameFieldInCurrentSchema,
 	} from '../../state/schemas.js'
 
 	export let key: string
@@ -24,14 +22,14 @@
 		if (newKey === key) return
 		isKeyValid = !$fields.find(f => f.name === newKey)
 		console.log('Key changed:', key)
-		renameField($currentSchemaKey, key, newKey)
+		renameFieldInCurrentSchema(key, newKey)
 	}
 	const onPick = () => {
 		activeCommand.update(toggleCommand({ key, action: 'pick' }))
 		console.log('Picked:', key)
 	}
 	const onRemove = () => {
-		schemas.update(schemas => removeField(schemas, $currentSchemaKey, key))
+		removeFieldInCurrentSchema(key)
 		console.log('Removed:', key)
 	}
 </script>
