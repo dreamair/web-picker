@@ -1,6 +1,8 @@
 // Background service workers
 // https://developer.chrome.com/docs/extensions/mv3/service_workers/
 
+import contentFile from '../content/index.js?script'
+
 chrome.runtime.onInstalled.addListener(() => {
 })
 
@@ -10,7 +12,7 @@ chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: true })
 
 // In your background script
 chrome.runtime.onMessage.addListener((message, sender) => {
-	console.log('message', message)
+	console.log('message', message, 'sender', sender.tab?.id)
 	if (sender.tab) return
 	// send this to the active tab
 	chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
@@ -20,15 +22,15 @@ chrome.runtime.onMessage.addListener((message, sender) => {
 				console.error('Failed to send message: No active tab found')
 			return
 		}
-		console.log('sending message to tab', tab.id)
-		chrome.tabs.sendMessage(tab.id, message)
-			.catch(console.error)
+		chrome.scripting.executeScript({
+			target: { tabId: tab.id },
+			files: [contentFile]
+		}).then(() => {
+			console.log('sending message to tab', tab.id)
+			chrome.tabs.sendMessage(tab.id!, message)
+				.catch(console.error)
+		})
 	})
 })
 
-// chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
-// 	if (changeInfo.status === 'complete' && tab.active) {
-// 		chrome.runtime.sendMessage({ message: 'tabUpdated', tabId, url: tab.url })
-// 			.catch(console.error)
-// 	}
-// })
+

@@ -7,12 +7,6 @@ import type { Message } from '../model/Message'
 import { cancelPickers, pickers } from './pickers/index.js'
 import './styles.css'
 
-// Some JS on the page
-// storage.get().then(console.log);
-
-// Some svelte component on the page
-// new Overlay({ target: document.body });
-
 chrome.runtime.onMessage.addListener(async ({ action, payload }: Message) => {
 	if (action.startsWith('pick-')) action = action.slice(5)
 	const picker: keyof typeof pickers = action === 'pick'
