@@ -9,6 +9,7 @@
 	"scripts": {
 		"dev": "vite",
 		"build": "vite build",
+		"deploy": "rm extension.zip && cd dist && zip -r ../extension.zip .",
 		"check": "svelte-check --tsconfig ./tsconfig.json"
 	},
 	"devDependencies": {
