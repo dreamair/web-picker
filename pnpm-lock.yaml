@@ -4,6 +4,11 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+dependencies:
+  '@picocss/pico':
+    specifier: ^2.0.6
+    version: 2.0.6
+
 devDependencies:
   '@crxjs/vite-plugin':
     specifier: 2.0.0-beta.23
@@ -409,6 +414,11 @@ packages:
       '@nodelib/fs.scandir': 2.1.5
       fastq: 1.17.1
     dev: true
+
+  /@picocss/pico@2.0.6:
+    resolution: {integrity: sha512-/d8qsykowelD6g8k8JYgmCagOIulCPHMEc2NC4u7OjmpQLmtSetLhEbt0j1n3fPNJVcrT84dRp0RfJBn3wJROA==}
+    engines: {node: '>=18.19.0'}
+    dev: false
 
   /@rollup/pluginutils@4.2.1:
     resolution: {integrity: sha512-iKnFXr7NkdZAIHiIWE+BX5ULi/ucVFYWD6TbAV+rZctiRTY2PL6tsIKhoIOaoskiWAkgu+VsbXgUVDNLHf+InQ==}

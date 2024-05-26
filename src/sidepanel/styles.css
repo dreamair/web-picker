@@ -1,0 +1,19 @@
+:root {
+	--pico-line-height: 1.2;
+	--pico-spacing: 0.75rem;
+	--pico-form-element-spacing-vertical: 0.3rem;
+	--pico-form-element-spacing-horizontal: 0.5rem;
+}
+
+h3 {
+	--pico-font-size: 1rem;
+}
+
+button {
+	opacity: 0.5;
+	border: none;
+}
+
+button:hover {
+	opacity: 1;
+}

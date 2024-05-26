@@ -1,7 +1,11 @@
 {
 	"cSpell.words": [
 		"crxjs",
-		"pico"
+		"itemprop",
+		"pico",
+		"picocss",
+		"shortdescription",
+		"sidepanel"
 	],
 	"eslint.probe": [
 		"javascript",
