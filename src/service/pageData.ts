@@ -13,7 +13,9 @@ export function fillPageData(data: Writable<Field[]>) {
 				fields = updateField(fields, 'title', { value: tab.title })
 			return fields
 		})
-		chrome.runtime.sendMessage({ action: 'pick-pageData', isOptional: true })
-			.catch(console.error)
+		setTimeout(() => {
+			chrome.runtime.sendMessage({ action: 'pick-pageData', isOptional: true })
+				.catch(console.error)
+		}, 500)
 	})
 }

@@ -23,21 +23,19 @@ chrome.runtime.onMessage.addListener((message, sender) => {
 				console.error('Failed to send message: No active tab found')
 			return
 		}
-		const cssResult = await chrome.scripting.insertCSS({
+		await chrome.scripting.insertCSS({
 			target: { tabId: tab.id },
 			css: contentCss as string
 		})
-		console.log('injected css into tab', tab.id, cssResult)
+		console.log('injected css into tab', tab.id)
 		const result = await chrome.scripting.executeScript({
 			target: { tabId: tab.id },
 			files: [contentFile]
 		})
 		console.log('injected script into tab', tab.id, result)
-		chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-			console.log('sending message to tab', tab.id, tabs[0].id, tab.active, tab.highlighted)
-			chrome.tabs.sendMessage(tab.id!, message)
-				.catch(console.error)
-		})
+		console.log('sending message to tab', tab.id, tab.active, tab.highlighted)
+		chrome.tabs.sendMessage(tab.id, message)
+			.catch(console.error)
 	})
 })
 
