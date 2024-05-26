@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type { Writable } from 'svelte/store'
+	import placeholder from '../../assets/placeholder.svg'
 	import type { Command } from '../../model/Command.js'
 	import { toggleCommand } from '../../model/Command.js'
 	import type { Field, ImageField } from '../../model/Field.js'
@@ -28,7 +29,7 @@
 		<button on:click={onScreenshot} class="outline">✂️</button>
 	</FieldHeader>
 	<img
-		src={field?.value ? field.value : '/src/assets/placeholder.svg'}
+		src={field?.value ? field.value : placeholder}
 		alt="picked"
 		class:disabled={isEditMode} />
 </article>
