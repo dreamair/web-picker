@@ -1,4 +1,4 @@
-import type { Field } from '../model/Field.js'
+import type { Field, FieldType, ImageField, UrlField } from '../model/Field.js'
 
 
 export function exportJson(fields: Field[]) {
@@ -30,6 +30,11 @@ export function exportCsv(fields: Field[], inclHeaders = true) {
 		: `${fields.map(field => field.name.trim()).join(',')}\n${values}\n`
 }
 
+const mdByType = {
+	url: (f: UrlField) => `[${f.name}](${f.value})\n`,
+	image: (f: ImageField) => `![${f.alt ?? f.name}](${f.value})\n`,
+} as Partial<Record<FieldType, (f: any) => string>>
+
 export function exportMd(fields: Field[]) {
 	return fields
 		.map(f => {
@@ -37,7 +42,11 @@ export function exportMd(fields: Field[]) {
 			const value = f.value && typeof f.value === 'string'
 				? f.value.trim()
 				: f.value ?? ''
-			return !name || !value ? '' : `### ${name}\n${value}\n`
+			return !name || !value
+				? ''
+				: f.type in mdByType
+					? mdByType[f.type]?.(f)
+					: `### ${name}\n${value}\n`
 		})
 		.join('\n')
 }
