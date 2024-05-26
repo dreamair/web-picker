@@ -100,7 +100,7 @@ export function updateField(fields: Field[], name: string, data: object) {
 }
 
 export function updateFields(fields: Field[], newFields: Field[]) {
-	const newFieldsMap = new Map(newFields.map(f => [f.name, f]))
+	const newFieldsMap = new Map(newFields.filter(Boolean).map(f => [f.name, f]))
 	return fields.map(f => newFieldsMap.has(f.name)
 		? { ...f, ...newFieldsMap.get(f.name) }
 		: f) as Field[]

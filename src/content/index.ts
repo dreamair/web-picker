@@ -5,7 +5,6 @@
 // Some global styles on the page
 import type { Message } from '../model/Message'
 import { cancelPickers, pickers } from './pickers/index.js'
-import './styles.css'
 
 chrome.runtime.onMessage.addListener(async ({ action, payload }: Message) => {
 	if (action.startsWith('pick-')) action = action.slice(5)

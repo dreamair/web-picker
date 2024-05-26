@@ -1,4 +1,4 @@
-div.capture-overlay {
+div.web-picker-capture-overlay {
 	position: fixed;
 	top: 0;
 	right: 0;
@@ -10,11 +10,11 @@ div.capture-overlay {
 	border: 100vw solid rgba(70, 70, 70, 0.3);
 }
 
-div.capture-overlay:hover {
+div.web-picker-capture-overlay:hover {
 	border-color: rgba(70, 0, 0, 0.3);
 }
 
-div.capture-area {
+div.web-picker-capture-area {
 	position: fixed;
 	z-index: 9999;
 	border: 1px solid red;

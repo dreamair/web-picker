@@ -23,7 +23,7 @@ export function pickScreenshot(field: Field) {
 		}
 		if (curtainOverlay) curtainOverlay.remove()
 		curtainOverlay = document.createElement('div')
-		curtainOverlay.className = 'capture-overlay'
+		curtainOverlay.className = 'web-picker-capture-overlay'
 		document.body.appendChild(curtainOverlay)
 		document.body.addEventListener('mousedown', onMarkStart)
 	})
@@ -50,7 +50,7 @@ function onMarkStart(event: MouseEvent) {
 	if (areaOverlay) areaOverlay.remove()
 	console.log('start', event.clientY, event.y)
 	areaOverlay = document.createElement('div')
-	areaOverlay.className = 'capture-area'
+	areaOverlay.className = 'web-picker-capture-area'
 	style(areaOverlay,
 		{ left: event.clientX, top: event.clientY, width: 0, height: 0 })
 	curtainOverlay?.appendChild(areaOverlay)
