@@ -18,15 +18,22 @@
 	$: typeLabel = field?.type === 'string' ? 'text' : field?.type ?? 'text'
 
 	const prefixes = {
-		url: /^([\w:/.-]+)\?/,
-		string: /([^|-–]+)[|-–]/,
+		url: /^.+?[^\w:;.,/\-=~[\]()&$!@*+]+/,
+		string: /^.+?\W+/,
+	}
+	const prefixes1 = {
+		string: /^.+?[^\w .,]+/,
 	}
 
 	$: prefix = prefixes[field?.type as keyof typeof prefixes]
 	$: hasPrefix = prefix && prefix.test(text)
 
 	const postfixes = {
-		string: /[|-–](.*)/,
+		url: /[^\w:;.,/\-=~[\]()&$!@*+]+.*/,
+		string: /\W+\w*$/,
+	}
+	const postfixes1 = {
+		string: /[^\w .,]+[\w .,]*$/,
 	}
 
 	$: postfix = postfixes[field?.type as keyof typeof postfixes]
@@ -54,10 +61,14 @@
 		console.log('Text changed:', key)
 	}
 	const onPrefix = () => {
-		updateData(text.match(postfix)?.[1].trim())
+		const prefix1 = prefixes1[field?.type as keyof typeof prefixes1]
+		const p = prefix1?.test(text) ? prefix1 : prefix
+		updateData(text.replace(p, '').trim())
 	}
 	const onPostfix = () => {
-		updateData(text.match(prefix)?.[1].trim())
+		const postfix1 = postfixes1[field?.type as keyof typeof postfixes1]
+		const p = postfix1?.test(text) ? postfix1 : postfix
+		updateData(text.replace(p, '').trim())
 	}
 	const onMd = () => {
 		updateData(plain)
