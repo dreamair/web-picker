@@ -1,9 +1,10 @@
 import type { Field, FieldType, ImageField, UrlField } from '../model/Field.js'
+import { isNotEmpty, isValid, normalize } from '../model/Field.js'
 
 
 export function exportJson(fields: Field[]) {
+	fields = fields.map(normalize).filter(isValid).filter(isNotEmpty)
 	const obj = fields.reduce((obj, field) => {
-		if (!field.name) return obj
 		if (field.value === undefined || field.value === null) return obj
 		const val = { ...field } as Omit<Field, 'name'> & { name?: string }
 		if (typeof field.value === 'string') {
@@ -18,7 +19,7 @@ export function exportJson(fields: Field[]) {
 }
 
 export function exportCsv(fields: Field[], inclHeaders = true) {
-	fields = fields.map(f => ({ ...f, name: f.name.trim() })).filter(f => f.name)
+	fields = fields.map(normalize).filter(isValid)
 	const values = fields
 		.map(f => typeof f.value === 'string' ? f.value.trim() : f.value)
 		.map(v => v && typeof v === 'string'
@@ -27,7 +28,7 @@ export function exportCsv(fields: Field[], inclHeaders = true) {
 		.join(',')
 	return inclHeaders
 		? `${values}\n`
-		: `${fields.map(field => field.name.trim()).join(',')}\n${values}\n`
+		: `${fields.map(field => field.name).join(',')}\n${values}\n`
 }
 
 const mdByType = {
@@ -36,7 +37,19 @@ const mdByType = {
 } as Partial<Record<FieldType, (f: any) => string>>
 
 export function exportMd(fields: Field[]) {
-	return fields
+	fields = fields.map(normalize).filter(isValid).filter(isNotEmpty)
+	const title = fields.find(f => f.name.toLowerCase() === 'title')
+	const url = fields.find(f => f.name.toLowerCase() === 'url')
+	const description = fields.find(f => f.name.toLowerCase() === 'description')
+	const lines = []
+	if (title && url) lines.push(`## [${title.value}](${url.value})`)
+	else if (title) lines.push(`## ${title.value}`)
+	if (title && description) lines.push(description.value)
+	if (lines.length) lines.push('')
+	lines.push(...fields
+		.filter(f => f !== title
+			&& (f !== description || !title)
+			&& (f !== url || !title))
 		.map(f => {
 			const name = f.name.trim()
 			const value = f.value && typeof f.value === 'string'
@@ -47,6 +60,6 @@ export function exportMd(fields: Field[]) {
 				: f.type in mdByType
 					? mdByType[f.type]?.(f)
 					: `### ${name}\n${value}\n`
-		})
-		.join('\n')
+		}))
+	return lines.join('\n')
 }

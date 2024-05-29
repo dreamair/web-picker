@@ -127,3 +127,17 @@ export function applySchema(fields: Field[], schema?: Schema) {
 	return [...newFields, ...passiveFields.filter(f => f.isPassive)] as Field[]
 }
 
+export function normalize(field: Field) {
+	return { ...field, name: field.name.trim() }
+}
+
+export function isValid(field: Field) {
+	return !!field.name
+}
+
+export function isNotEmpty(field: Field) {
+	return typeof field.value === 'number'
+		? !isNaN(field.value)
+		: !!field.value?.toString().trim()
+}
+
