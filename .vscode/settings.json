@@ -1,34 +1,48 @@
 {
-	"cSpell.words": [
-		"crxjs",
-		"itemprop",
-		"pico",
-		"picocss",
-		"shortdescription",
-		"sidepanel"
-	],
-	"eslint.probe": [
-		"javascript",
-		"javascriptreact",
-		"typescript",
-		"typescriptreact",
-		"html",
-		"vue",
-		"markdown",
-		"svelte"
-	],
-	"eslint.validate": [
-		"javascript",
-		"javascriptreact",
-		"typescript",
-		"typescriptreact",
-		"html",
-		"vue",
-		"markdown",
-		"svelte"
-	],
-	"svelte.plugin.svelte.format.config.singleQuote": true,
-	"typescript.format.semicolons": "remove",
-	"javascript.preferences.importModuleSpecifierEnding": "js",
-	"typescript.preferences.importModuleSpecifierEnding": "js",
+    "cSpell.words": [
+        "crxjs",
+        "itemprop",
+        "pico",
+        "picocss",
+        "shortdescription",
+        "sidepanel"
+    ],
+    "eslint.probe": [
+        "javascript",
+        "javascriptreact",
+        "typescript",
+        "typescriptreact",
+        "html",
+        "vue",
+        "markdown",
+        "svelte"
+    ],
+    "eslint.validate": [
+        "javascript",
+        "javascriptreact",
+        "typescript",
+        "typescriptreact",
+        "html",
+        "vue",
+        "markdown",
+        "svelte"
+    ],
+    "svelte.plugin.svelte.format.config.singleQuote": true,
+    "typescript.format.semicolons": "remove",
+    "javascript.preferences.importModuleSpecifierEnding": "js",
+    "typescript.preferences.importModuleSpecifierEnding": "js",
+    "squarl.bookmarks": [
+        {
+            "name": "Chrome Web Store",
+            "path": "https://chromewebstore.google.com/detail/web-picker/kfbnjabdmggkplgdpnoadgmdnlkhbnkh",
+            "description": "Chrome Extension to pick data from web pages.",
+            "type": "link"
+        },
+        {
+            "name": "Store Listing",
+            "path": "https://chrome.google.com/webstore/devconsole/4bd9f789-79c4-4a24-b2c7-dd1ce395e021/kfbnjabdmggkplgdpnoadgmdnlkhbnkh/edit",
+            "description": "Developer Dashboard",
+            "type": "link"
+        }
+    ],
 }

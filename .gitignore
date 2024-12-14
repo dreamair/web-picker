@@ -13,3 +13,6 @@ dist-ssr
 *.local
 
 .DS_Store
+extension.zip
+dist.crx
+dist.pem
