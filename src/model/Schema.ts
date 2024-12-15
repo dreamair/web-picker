@@ -49,6 +49,27 @@ export function addSchemaField(schemas: Schemas,
   return schemas
 }
 
+export function moveSchemaField(schemas: Schemas,
+  key: string, fieldName: string, relativeIdx: number) {
+  if (relativeIdx === 0) return schemas
+  const schema = schemas[key]
+  if (!schema) return schemas
+  const idx = schema.findIndex(({ name }) => name === fieldName)
+  if (idx === -1) return schemas
+  const toIdx = idx + relativeIdx
+  const toIdxAdjusted = toIdx < 0
+    ? toIdx + schema.length
+    : toIdx >= schema.length
+      ? toIdx - schema.length
+      : toIdx
+  const newSchema = [...schema]
+  const field = newSchema.splice(idx, 1)[0]
+  newSchema.splice(toIdxAdjusted, 0, field)
+  schemas = { ...schemas }
+  schemas[key] = newSchema
+  return schemas
+}
+
 export function removeSchemaField(schemas: Schemas,
   key: string, fieldName: string) {
   const schema = schemas[key]

@@ -5,6 +5,7 @@
 	import { toggleCommand } from '../../model/Command.js'
 	import type { Field } from '../../model/Field.js'
 	import {
+		moveFieldInCurrentSchema,
 		removeFieldInCurrentSchema,
 		renameFieldInCurrentSchema,
 	} from '../../state/schemas.js'
@@ -40,6 +41,9 @@
 		activeCommand.update(toggleCommand({ key, action: 'pick' }))
 		console.log('Picked:', key)
 	}
+	const onMoveUp = () => {
+		moveFieldInCurrentSchema(key, -1)
+	}
 	const onRemove = () => {
 		removeFieldInCurrentSchema(key)
 		console.log('Removed:', key)
@@ -54,6 +58,7 @@
 			oninput={onKeyChanged}
 			aria-label="Field key"
 			aria-invalid={isKeyValid ? undefined : true} />
+		<button onclick={onMoveUp} class="outline" title="Move up">⋀</button>
 		<button onclick={onRemove} class="outline" title="Remove this field."
 			>❌</button>
 	{:else}
