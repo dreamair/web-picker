@@ -29,7 +29,9 @@
 			copyImageToClipboard(
 				field.value,
 				title ? title : field.name === 'image' ? '' : field.name,
-			)
+			).catch(err => {
+				alert(`Failed to copy the image to the clipboard: ${err}`)
+			})
 		}
 	}
 </script>
