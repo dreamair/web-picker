@@ -1,4 +1,5 @@
 import '@picocss/pico'
+import { mount } from 'svelte'
 import { setup } from '../common/setup.js'
 import '../service/messages.js'
 import { fillPageData } from '../service/pageData.js'
@@ -11,11 +12,11 @@ import './styles.css'
 // https://developer.chrome.com/docs/extensions/reference/sidePanel/
 
 function render() {
-	const target = document.getElementById('app')
-	if (!target) return
-	new SidePanel({ target })
-	setup()
-	fillPageData(fields)
+  const target = document.getElementById('app')
+  if (!target) return
+  mount(SidePanel, { target })
+  setup()
+  fillPageData(fields)
 }
 
 document.addEventListener('DOMContentLoaded', render)

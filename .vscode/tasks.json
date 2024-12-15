@@ -1,25 +1,62 @@
 {
-	"version": "2.0.0",
-	"tasks": [
-		{
-			"type": "npm",
-			"script": "dev",
-			"problemMatcher": [],
-			"label": "dev",
-			"detail": "vite"
-		},
-		{
-			"type": "npm",
-			"script": "deploy",
-			"problemMatcher": [],
-			"label": "deploy"
-		},
-		{
-			"type": "npm",
-			"script": "build",
-			"group": "build",
-			"problemMatcher": [],
-			"label": "build"
-		}
-	]
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "type": "npm",
+      "script": "dev",
+      "problemMatcher": [],
+      "label": "dev",
+      "detail": "vite"
+    },
+    {
+      "type": "npm",
+      "script": "deploy",
+      "problemMatcher": [],
+      "label": "deploy"
+    },
+    {
+      "label": "watch-extension",
+      "type": "npm",
+      "script": "watch-extension",
+      "problemMatcher": [],
+      "presentation": {
+        "group": "watch"
+      },
+      "options": {
+        "statusbar": {
+          "hide": true
+        }
+      }
+    },
+    {
+      "label": "watch-content",
+      "type": "npm",
+      "script": "watch-content",
+      "problemMatcher": [],
+      "presentation": {
+        "group": "watch"
+      },
+      "options": {
+        "statusbar": {
+          "hide": true
+        }
+      }
+    },
+    {
+      "label": "watch",
+      "detail": "Builds extension and content in watch mode.",
+      "dependsOn": [
+        "watch-extension",
+        "watch-content",
+      ],
+      "problemMatcher": [],
+    },
+    {
+      "type": "npm",
+      "script": "build",
+      "group": "build",
+      "problemMatcher": [],
+      "label": "build"
+    }
+  ]
 }
