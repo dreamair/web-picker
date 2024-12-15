@@ -9,13 +9,25 @@
 		renameFieldInCurrentSchema,
 	} from '../../state/schemas.js'
 
-	export let key: string
-	export let fields: Writable<Field[]>
-	export let activeCommand: Writable<Command | null>
-	export let isEditMode = false
-	export let pickTitle: string | null = null
+	interface Props {
+		key: string
+		fields: Writable<Field[]>
+		activeCommand: Writable<Command | null>
+		isEditMode?: boolean
+		pickTitle?: string | null
+		children?: import('svelte').Snippet
+	}
 
-	let isKeyValid = true
+	const {
+		key,
+		fields,
+		activeCommand,
+		isEditMode = false,
+		pickTitle = null,
+		children,
+	}: Props = $props()
+
+	let isKeyValid = $state(true)
 
 	const onKeyChanged: ChangeEventHandler<HTMLInputElement> = event => {
 		const newKey = event.currentTarget.value
@@ -39,17 +51,17 @@
 		<input
 			type="text"
 			value={key}
-			on:input={onKeyChanged}
+			oninput={onKeyChanged}
 			aria-label="Field key"
 			aria-invalid={isKeyValid ? undefined : true} />
-		<button on:click={onRemove} class="outline" title="Remove this field."
+		<button onclick={onRemove} class="outline" title="Remove this field."
 			>❌</button>
 	{:else}
-		<!-- svelte-ignore a11y-click-events-have-key-events -->
-		<!-- svelte-ignore a11y-no-static-element-interactions -->
-		<div on:click={onPick}>{key}</div>
-		<slot></slot>
-		<button on:click={onPick} class="outline" title={pickTitle}>📌</button>
+		<!-- svelte-ignore a11y_click_events_have_key_events -->
+		<!-- svelte-ignore a11y_no_static_element_interactions -->
+		<div onclick={onPick}>{key}</div>
+		{@render children?.()}
+		<button onclick={onPick} class="outline" title={pickTitle}>📌</button>
 	{/if}
 </header>
 

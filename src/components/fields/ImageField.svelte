@@ -6,12 +6,16 @@
 	import type { Field, ImageField } from '../../model/Field.js'
 	import FieldHeader from './FieldHeader.svelte'
 
-	export let key: string
-	export let fields: Writable<Field[]>
-	export let activeCommand: Writable<Command | null>
-	export let isEditMode = false
+	interface Props {
+		key: string
+		fields: Writable<Field[]>
+		activeCommand: Writable<Command | null>
+		isEditMode?: boolean
+	}
 
-	$: field = $fields.find(f => f.name === key) as ImageField | null
+	const { key, fields, activeCommand, isEditMode = false }: Props = $props()
+
+	const field = $derived($fields.find(f => f.name === key) as ImageField | null)
 
 	const onScreenshot = () => {
 		activeCommand.update(toggleCommand({ key, action: 'pick-screenshot' }))
@@ -26,7 +30,7 @@
 		{activeCommand}
 		{isEditMode}
 		pickTitle="Pick an image on the current Web page.">
-		<button on:click={onScreenshot} class="outline">✂️</button>
+		<button onclick={onScreenshot} class="outline">✂️</button>
 	</FieldHeader>
 	<img
 		src={field?.value ? field.value : placeholder}

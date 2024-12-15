@@ -13,7 +13,7 @@
 	} from '../state/schemas.js'
 	import { fieldComponents } from './fields/index.js'
 
-	let isEditMode = false
+	let isEditMode = $state(false)
 
 	const toggleEditMode = () => {
 		isEditMode = !isEditMode
@@ -61,15 +61,20 @@
 		fields.set($currentSchema.map(f => ({ ...f })))
 	}
 
-	$: key = $currentSchemaKey
-	$: if (key === newSchemaKey) {
-		setTimeout(() => {
-			const newKey = prompt('Enter the name of the new schema:', 'new schema')
-			addSchema(newKey)
-		}, 0)
-	} else {
-		currentSchemaKey.set(key)
-	}
+	let key = $state('')
+	$effect(() => {
+		key = $currentSchemaKey
+	})
+	$effect(() => {
+		if (key === newSchemaKey) {
+			setTimeout(() => {
+				const newKey = prompt('Enter the name of the new schema:', 'new schema')
+				addSchema(newKey)
+			}, 0)
+		} else {
+			currentSchemaKey.set(key)
+		}
+	})
 	const onRemove = () => {
 		if (!confirm(`Are you sure you want to remove this schema '${key}'?`))
 			return
@@ -95,25 +100,21 @@
 				{/if}
 			</select>
 		{/if}
-		<button on:click={toggleEditMode} class="outline">✏️</button>
+		<button onclick={toggleEditMode} class="outline">✏️</button>
 	</header>
 	{#each $activeFields as field}
-		<svelte:component
-			this={fieldComponents[field.type]}
-			key={field.name}
-			{fields}
-			{activeCommand}
-			{isEditMode} />
+		{@const SvelteComponent = fieldComponents[field.type]}
+		<SvelteComponent key={field.name} {fields} {activeCommand} {isEditMode} />
 	{/each}
 	<footer>
 		{#if isEditMode}
 			<div></div>
 			<div>
-				<button class="text-icon" on:click={onAdd} title="Add a new field."
+				<button class="text-icon" onclick={onAdd} title="Add a new field."
 					>+</button>
 				{#if key !== 'default'}
 					<button
-						on:click={onRemove}
+						onclick={onRemove}
 						title="Delete all fields and remove this schema.">❌</button>
 				{/if}
 			</div>
@@ -121,19 +122,19 @@
 			<div>
 				<button
 					class="copy"
-					on:click={onCopyJson}
+					onclick={onCopyJson}
 					title="Copy the data in JSON format to the clipboard.">
 					JSON
 				</button>
 				<button
 					class="copy"
-					on:click={onCopyCsv}
+					onclick={onCopyCsv}
 					title="Copy the data in CSV format to the clipboard.">
 					CSV
 				</button>
 				<button
 					class="copy"
-					on:click={onCopyMd}
+					onclick={onCopyMd}
 					title="Copy the data in Markdown format to the clipboard.">
 					MD
 				</button>
@@ -141,10 +142,10 @@
 			<div>
 				<button
 					class="secondary"
-					on:click={onPageData}
+					onclick={onPageData}
 					title="Automatically try to extract page data like URL, title,..."
 					>✨</button>
-				<button class="secondary" on:click={onClear} title="Clear all data."
+				<button class="secondary" onclick={onClear} title="Clear all data."
 					>🧹</button>
 			</div>
 		{/if}

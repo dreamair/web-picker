@@ -6,13 +6,17 @@
 	import { updateField } from '../../model/Field.js'
 	import FieldHeader from './FieldHeader.svelte'
 
-	export let key: string
-	export let fields: Writable<Field[]>
-	export let activeCommand: Writable<Command | null>
-	export let isEditMode = false
+	interface Props {
+		key: string
+		fields: Writable<Field[]>
+		activeCommand: Writable<Command | null>
+		isEditMode?: boolean
+	}
 
-	$: field = $fields.find(f => f.name === key)
-	$: value = typeof field?.value === 'number' ? field.value : ''
+	const { key, fields, activeCommand, isEditMode = false }: Props = $props()
+
+	const field = $derived($fields.find(f => f.name === key))
+	const value = $derived(typeof field?.value === 'number' ? field.value : '')
 
 	const onChanged: ChangeEventHandler<HTMLInputElement> = event => {
 		const str = event.currentTarget.value
@@ -34,7 +38,7 @@
 	{#if !field}
 		<div>Field not found!</div>
 	{:else}
-		<input type="number" {value} on:input={onChanged} disabled={isEditMode} />
+		<input type="number" {value} oninput={onChanged} disabled={isEditMode} />
 	{/if}
 </article>
 

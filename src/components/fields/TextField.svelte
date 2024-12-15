@@ -7,15 +7,22 @@
 	import { updateField } from '../../model/Field.js'
 	import FieldHeader from './FieldHeader.svelte'
 
-	export let key: string
-	export let fields: Writable<Field[]>
-	export let activeCommand: Writable<Command | null>
-	export let isEditMode = false
+	interface Props {
+		key: string
+		fields: Writable<Field[]>
+		activeCommand: Writable<Command | null>
+		isEditMode?: boolean
+	}
 
-	$: field = $fields.find(f => f.name === key)
-	$: text =
-		typeof field?.value === 'number' ? `${field.value}` : field?.value ?? ''
-	$: typeLabel = field?.type === 'string' ? 'text' : field?.type ?? 'text'
+	const { key, fields, activeCommand, isEditMode = false }: Props = $props()
+
+	const field = $derived($fields.find(f => f.name === key))
+	const text = $derived(
+		typeof field?.value === 'number' ? `${field.value}` : (field?.value ?? ''),
+	)
+	const typeLabel = $derived(
+		field?.type === 'string' ? 'text' : (field?.type ?? 'text'),
+	)
 
 	const prefixes = {
 		url: /^.+?[^\w:;.,/\-=~[\]()&$!@*+]+/,
@@ -25,8 +32,8 @@
 		string: /^.+?[^\w .,]+/,
 	}
 
-	$: prefix = prefixes[field?.type as keyof typeof prefixes]
-	$: hasPrefix = prefix && prefix.test(text)
+	const prefix = $derived(prefixes[field?.type as keyof typeof prefixes])
+	const hasPrefix = $derived(prefix && prefix.test(text))
 
 	const postfixes = {
 		url: /[^\w:;.,/\-=~[\]()&$!@*+]+.*/,
@@ -36,8 +43,8 @@
 		string: /[^\w .,]+[\w .,]*$/,
 	}
 
-	$: postfix = postfixes[field?.type as keyof typeof postfixes]
-	$: hasPostfix = postfix && postfix.test(text)
+	const postfix = $derived(postfixes[field?.type as keyof typeof postfixes])
+	const hasPostfix = $derived(postfix && postfix.test(text))
 
 	const mds = [
 		/!?\[([^\]\n]*)\]\(\S+\)/gm,
@@ -46,8 +53,10 @@
 		/```([^`]+)```/gm,
 		/`([^`\n]+)`/gm,
 	]
-	$: plain = mds.reduce((t, pattern) => t.replaceAll(pattern, '$1'), text)
-	$: hasMd = plain !== text
+	const plain = $derived(
+		mds.reduce((t, pattern) => t.replaceAll(pattern, '$1'), text),
+	)
+	const hasMd = $derived(plain !== text)
 
 	const updateData = (value?: string) => {
 		if (!value) return
@@ -83,15 +92,15 @@
 		{isEditMode}
 		pickTitle={`Pick or select some ${typeLabel} on the current Web page!`}>
 		{#if hasPrefix}
-			<button on:click={onPrefix} class="outline" title="Remove the prefix."
+			<button onclick={onPrefix} class="outline" title="Remove the prefix."
 				>↤</button>
 		{/if}
 		{#if hasPostfix}
-			<button on:click={onPostfix} class="outline" title="Remove the postfix."
+			<button onclick={onPostfix} class="outline" title="Remove the postfix."
 				>↦</button>
 		{/if}
 		{#if hasMd}
-			<button on:click={onMd} class="outline" title="Remove Markdown syntax."
+			<button onclick={onMd} class="outline" title="Remove Markdown syntax."
 				>[-]</button>
 		{/if}
 	</FieldHeader>
@@ -100,14 +109,14 @@
 	{:else if field.type === 'text'}
 		<textarea
 			value={text}
-			on:input={onTextChanged}
+			oninput={onTextChanged}
 			use:autoHeight
-			disabled={isEditMode} />
+			disabled={isEditMode}></textarea>
 	{:else}
 		<input
 			type="text"
 			value={text}
-			on:input={onTextChanged}
+			oninput={onTextChanged}
 			disabled={isEditMode} />
 	{/if}
 </article>
