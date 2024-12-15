@@ -45,6 +45,9 @@ importers:
       eslint-plugin-svelte:
         specifier: ^2.46.1
         version: 2.46.1(eslint@9.17.0)(svelte@5.14.0)
+      run-script-os:
+        specifier: ^1.1.6
+        version: 1.1.6
       svelte:
         specifier: 5.14.0
         version: 5.14.0
@@ -1264,6 +1267,10 @@ packages:
 
   run-parallel@1.2.0:
     resolution: {integrity: sha512-5l4VyZR86LZ/lDxZTR6jqL8AFE2S0IFLMP26AbjsLVADxHdhB/c0GUsH+y39UfCi3dzz8OlQuPmnaJOMoDHQBA==}
+
+  run-script-os@1.1.6:
+    resolution: {integrity: sha512-ql6P2LzhBTTDfzKts+Qo4H94VUKpxKDFz6QxxwaUZN0mwvi7L3lpOI7BqPCq7lgDh3XLl0dpeXwfcVIitlrYrw==}
+    hasBin: true
 
   sade@1.8.1:
     resolution: {integrity: sha512-xal3CZX1Xlo/k4ApwCFrHVACi9fBqJ7V+mwhBsuf/1IOKbBy098Fex+Wa/5QMubw09pSZ/u8EY8PWgevJsXp1A==}
@@ -2768,6 +2775,8 @@ snapshots:
   run-parallel@1.2.0:
     dependencies:
       queue-microtask: 1.2.3
+
+  run-script-os@1.1.6: {}
 
   sade@1.8.1:
     dependencies:
