@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { copyToClipboard } from '../common/clipboard.js'
 	import type { FieldType } from '../model/Field.js'
 	import { addSchemaField, newSchemaKey } from '../model/Schema.js'
 	import { exportCsv, exportJson, exportMd } from '../service/export.js'
@@ -13,12 +14,32 @@
 	} from '../state/schemas.js'
 	import { fieldComponents } from './fields/index.js'
 
+	// #region edit mode
 	let isEditMode = $state(false)
 
 	const toggleEditMode = () => {
 		isEditMode = !isEditMode
 	}
+	// #endregion
 
+	// #region state
+	let key = $state('')
+	$effect(() => {
+		key = $currentSchemaKey
+	})
+	$effect(() => {
+		if (key === newSchemaKey) {
+			setTimeout(() => {
+				const newKey = prompt('Enter the name of the new schema:', 'new schema')
+				addSchema(newKey)
+			}, 0)
+		} else {
+			currentSchemaKey.set(key)
+		}
+	})
+	// #endregion
+
+	// #region actions
 	const onAdd = () => {
 		const name = prompt('Enter the name of the new field:', 'new field')
 		const type = prompt(
@@ -34,15 +55,6 @@
 
 	const onPageData = () => {
 		activeCommand.set({ action: 'pick-pageData' })
-	}
-
-	const copyToClipboard = async (text: string) => {
-		try {
-			await navigator.clipboard.writeText(text)
-			console.log('Data copied to clipboard')
-		} catch (err) {
-			console.error('Failed to copy data: ', err)
-		}
 	}
 
 	const onCopyJson = () => {
@@ -61,28 +73,15 @@
 		fields.set($currentSchema.map(f => ({ ...f })))
 	}
 
-	let key = $state('')
-	$effect(() => {
-		key = $currentSchemaKey
-	})
-	$effect(() => {
-		if (key === newSchemaKey) {
-			setTimeout(() => {
-				const newKey = prompt('Enter the name of the new schema:', 'new schema')
-				addSchema(newKey)
-			}, 0)
-		} else {
-			currentSchemaKey.set(key)
-		}
-	})
 	const onRemove = () => {
 		if (!confirm(`Are you sure you want to remove this schema '${key}'?`))
 			return
 		removeSchema(key)
 	}
+	// #endregion
 </script>
 
-<div>
+<div class="root">
 	<header>
 		{#if $schemas}
 			<select
@@ -102,10 +101,12 @@
 		{/if}
 		<button onclick={toggleEditMode} class="outline">✏️</button>
 	</header>
-	{#each $activeFields as field}
-		{@const SvelteComponent = fieldComponents[field.type]}
-		<SvelteComponent key={field.name} {fields} {activeCommand} {isEditMode} />
-	{/each}
+	<main>
+		{#each $activeFields as field}
+			{@const SvelteComponent = fieldComponents[field.type]}
+			<SvelteComponent key={field.name} {fields} {activeCommand} {isEditMode} />
+		{/each}
+	</main>
 	<footer>
 		{#if isEditMode}
 			<div></div>
@@ -153,11 +154,19 @@
 </div>
 
 <style>
+	.root {
+		display: flex;
+		flex-direction: column;
+		max-height: 100vh;
+	}
 	header {
 		display: flex;
 		align-items: center;
 		padding: var(--pico-spacing);
 		gap: 8px;
+	}
+	main {
+		overflow: auto;
 	}
 	select {
 		margin: 0;

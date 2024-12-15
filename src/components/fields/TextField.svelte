@@ -2,9 +2,10 @@
 	import type { ChangeEventHandler } from 'svelte/elements'
 	import type { Writable } from 'svelte/store'
 	import { autoHeight } from '../../common/autoHeight.js'
+	import { copyToClipboard } from '../../common/clipboard.js'
 	import type { Command } from '../../model/Command.js'
 	import type { Field } from '../../model/Field.js'
-	import { updateField } from '../../model/Field.js'
+	import { getField, updateField } from '../../model/Field.js'
 	import FieldHeader from './FieldHeader.svelte'
 
 	interface Props {
@@ -16,6 +17,7 @@
 
 	const { key, fields, activeCommand, isEditMode = false }: Props = $props()
 
+	// #region state
 	const field = $derived($fields.find(f => f.name === key))
 	const text = $derived(
 		typeof field?.value === 'number' ? `${field.value}` : (field?.value ?? ''),
@@ -57,7 +59,9 @@
 		mds.reduce((t, pattern) => t.replaceAll(pattern, '$1'), text),
 	)
 	const hasMd = $derived(plain !== text)
+	// #endregion
 
+	// #region actions
 	const updateData = (value?: string) => {
 		if (!value) return
 		fields.update(fields => updateField(fields, key, { value }))
@@ -67,7 +71,6 @@
 		HTMLInputElement | HTMLTextAreaElement
 	> = ({ currentTarget }) => {
 		updateData(currentTarget.value)
-		console.log('Text changed:', key)
 	}
 	const onPrefix = () => {
 		const prefix1 = prefixes1[field?.type as keyof typeof prefixes1]
@@ -82,6 +85,16 @@
 	const onMd = () => {
 		updateData(plain)
 	}
+	const onCopy = () => {
+		if (!text) return
+		if (field?.type === 'url') {
+			const title = getField($fields, 'title')?.value ?? ''
+			copyToClipboard(`[${title}](${text})`)
+		} else {
+			copyToClipboard(text)
+		}
+	}
+	// #endregion
 </script>
 
 <article class:picking={$activeCommand?.key === key}>
@@ -102,6 +115,12 @@
 		{#if hasMd}
 			<button onclick={onMd} class="outline" title="Remove Markdown syntax."
 				>[-]</button>
+		{/if}
+		{#if text}
+			<button
+				onclick={onCopy}
+				class="outline"
+				title="Copy this field to the clipboard.">📋</button>
 		{/if}
 	</FieldHeader>
 	{#if !field}

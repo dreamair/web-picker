@@ -1,6 +1,7 @@
 <script lang="ts">
 	import type { ChangeEventHandler } from 'svelte/elements'
 	import type { Writable } from 'svelte/store'
+	import { copyToClipboard } from '../../common/clipboard.js'
 	import type { Command } from '../../model/Command.js'
 	import type { Field } from '../../model/Field.js'
 	import { updateField } from '../../model/Field.js'
@@ -26,6 +27,10 @@
 		fields.update(fields => updateField(fields, key, { value }))
 		console.log('Number changed:', key)
 	}
+
+	const onCopy = () => {
+		copyToClipboard(String(value))
+	}
 </script>
 
 <article class:picking={$activeCommand?.key === key}>
@@ -34,7 +39,14 @@
 		{fields}
 		{activeCommand}
 		{isEditMode}
-		pickTitle="Pick or select a number on the current Web page." />
+		pickTitle="Pick or select a number on the current Web page.">
+		{#if value !== ''}
+			<button
+				onclick={onCopy}
+				class="outline"
+				title="Copy this field to the clipboard.">📋</button>
+		{/if}
+	</FieldHeader>
 	{#if !field}
 		<div>Field not found!</div>
 	{:else}

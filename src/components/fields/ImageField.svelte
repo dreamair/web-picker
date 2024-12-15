@@ -1,9 +1,10 @@
 <script lang="ts">
 	import type { Writable } from 'svelte/store'
 	import placeholder from '../../assets/placeholder.svg'
+	import { copyImageToClipboard } from '../../common/clipboard.js'
 	import type { Command } from '../../model/Command.js'
 	import { toggleCommand } from '../../model/Command.js'
-	import type { Field, ImageField } from '../../model/Field.js'
+	import { getField, type Field, type ImageField } from '../../model/Field.js'
 	import FieldHeader from './FieldHeader.svelte'
 
 	interface Props {
@@ -21,6 +22,16 @@
 		activeCommand.update(toggleCommand({ key, action: 'pick-screenshot' }))
 		console.log('Picked:', key)
 	}
+
+	const onCopy = () => {
+		if (field?.value) {
+			const title = getField($fields, 'title')?.value as string | undefined
+			copyImageToClipboard(
+				field.value,
+				title ? title : field.name === 'image' ? '' : field.name,
+			)
+		}
+	}
 </script>
 
 <article>
@@ -30,6 +41,12 @@
 		{activeCommand}
 		{isEditMode}
 		pickTitle="Pick an image on the current Web page.">
+		{#if field?.value}
+			<button
+				onclick={onCopy}
+				class="outline"
+				title="Copy this field to the clipboard.">📋</button>
+		{/if}
 		<button onclick={onScreenshot} class="outline">✂️</button>
 	</FieldHeader>
 	<img
