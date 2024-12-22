@@ -1,6 +1,6 @@
 const tagHandlers = {
   ['#text']: (n: Node) =>
-    n.parentElement?.innerText.includes(n.textContent ?? '')
+    n.parentElement?.innerText.includes(n.textContent?.trim() ?? '')
       ? n.textContent?.replace(/\s+/g, ' ') ?? ''
       : '',
   ['BR']: () => '\n',

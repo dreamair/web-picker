@@ -7,17 +7,17 @@ import type { Message } from '../model/Message'
 import { cancelPickers, pickers } from './pickers/index.js'
 
 chrome.runtime.onMessage.addListener(async ({ action, payload }: Message) => {
-	if (action.startsWith('pick-')) action = action.slice(5)
-	const picker: keyof typeof pickers = action === 'pick'
-		? payload.type
-		: action in pickers ? action : null
-	if (picker in pickers) {
-		console.log('pick', picker, action, payload)
-		const msg = await pickers[picker](payload)
-		chrome.runtime.sendMessage(msg).catch(console.error)
-	}
-	if (action === 'cancel-pickers') {
-		console.log('cancel', payload)
-		cancelPickers()
-	}
+  if (action.startsWith('pick-')) action = action.slice(5)
+  const picker: keyof typeof pickers = action === 'pick'
+    ? payload.type
+    : action in pickers ? action : null
+  if (picker in pickers) {
+    console.log('pick', picker, action, payload)
+    const msg = await pickers[picker](payload)
+    chrome.runtime.sendMessage(msg).catch(console.error)
+  }
+  if (action === 'cancel-pickers') {
+    console.log('cancel-pickers', payload)
+    cancelPickers()
+  }
 })
