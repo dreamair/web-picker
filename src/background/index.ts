@@ -12,7 +12,6 @@ chrome.runtime.onInstalled.addListener(() => {
 chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: true })
   .catch((error) => console.error(error))
 
-// In your background script
 chrome.runtime.onMessage.addListener((message, sender) => {
   console.log('message', message, 'sender', sender.tab?.id)
   if (sender.tab) return
@@ -40,6 +39,9 @@ chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
 })
 
 async function injectContent(tabId: number) {
+  const isPlain = await chrome.scripting.executeScript(
+    { target: { tabId }, func: () => !(window as any).__web_picker__ })
+  if (!isPlain[0].result) return
   await chrome.scripting.insertCSS({
     target: { tabId },
     css: contentCss as string
@@ -47,7 +49,11 @@ async function injectContent(tabId: number) {
   console.log('injected css into tab', tabId)
   const result = await chrome.scripting.executeScript({
     target: { tabId },
-    files: [contentFile]
+    files: [contentFile],
   })
   console.log('injected script into tab', tabId, result)
+  await chrome.scripting.executeScript({
+    target: { tabId },
+    func: () => { (window as any).__web_picker__ = true },
+  })
 }
