@@ -12,13 +12,20 @@ chrome.runtime.onInstalled.addListener(() => {
 chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: true })
   .catch((error) => console.error(error))
 
+let isActive = false
+
 chrome.runtime.onMessage.addListener((message, sender) => {
-  console.log('message', message, 'sender', sender.tab?.id)
-  if (sender.tab) return
+  console.log('message', message.action, message, 'sender', sender.tab?.id)
+  if (message.action === 'activate')
+    isActive = message.payload
+  if (sender.tab)
+    return
+  if (!isActive)
+    return
   // send this to the active tab
   chrome.tabs.query({ active: true, currentWindow: true }, async (tabs) => {
     const tab = tabs[0]
-    if (!tab?.id) {
+    if (!tab?.id || !tab.url || tab.url.startsWith('chrome://')) {
       if (!message.isOptional)
         console.error('Failed to send message: No active tab found')
       return
@@ -31,11 +38,25 @@ chrome.runtime.onMessage.addListener((message, sender) => {
 })
 
 chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
-  console.log('tab updated', tabId, changeInfo, tab)
+  console.log('tab updated', tabId, isActive, changeInfo, tab)
+  if (!tab.url || tab.url.startsWith('chrome://'))
+    return
+  if (!isActive)
+    return
   if (changeInfo.status === "complete") {
     console.log(`Tab reloaded: ${tabId}, URL: ${tab.url}`, tab)
     await injectContent(tabId)
   }
+})
+
+chrome.tabs.onActivated.addListener(async (activeInfo) => {
+  console.log("Switched to tab ID:", activeInfo.tabId)
+  if (!isActive)
+    return
+  const tab = await chrome.tabs.get(activeInfo.tabId)
+  if (!tab.url || tab.url.startsWith('chrome://'))
+    return
+  await injectContent(activeInfo.tabId)
 })
 
 async function injectContent(tabId: number) {
