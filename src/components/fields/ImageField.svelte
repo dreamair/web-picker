@@ -2,6 +2,7 @@
 	import type { Writable } from 'svelte/store'
 	import placeholder from '../../assets/placeholder.svg'
 	import { copyImageToClipboard } from '../../common/clipboard.js'
+	import { debug } from '../../common/debug.js'
 	import type { Command } from '../../model/Command.js'
 	import { toggleCommand } from '../../model/Command.js'
 	import { getField, type Field, type ImageField } from '../../model/Field.js'
@@ -20,7 +21,7 @@
 
 	const onScreenshot = () => {
 		activeCommand.update(toggleCommand({ key, action: 'pick-screenshot' }))
-		console.log('Picked:', key)
+		debug('Picked:', key)
 	}
 
 	const onCopy = () => {

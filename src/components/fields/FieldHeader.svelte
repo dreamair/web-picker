@@ -1,6 +1,7 @@
 <script lang="ts">
 	import type { ChangeEventHandler } from 'svelte/elements'
 	import type { Writable } from 'svelte/store'
+	import { debug } from '../../common/debug.js'
 	import type { Command } from '../../model/Command.js'
 	import { toggleCommand } from '../../model/Command.js'
 	import type { Field } from '../../model/Field.js'
@@ -34,19 +35,19 @@
 		const newKey = event.currentTarget.value
 		if (newKey === key) return
 		isKeyValid = !$fields.find(f => f.name === newKey)
-		console.log('Key changed:', key)
+		debug('Key changed:', key)
 		renameFieldInCurrentSchema(key, newKey)
 	}
 	const onPick = () => {
 		activeCommand.update(toggleCommand({ key, action: 'pick' }))
-		console.log('Picked:', key)
+		debug('Picked:', key)
 	}
 	const onMoveUp = () => {
 		moveFieldInCurrentSchema(key, -1)
 	}
 	const onRemove = () => {
 		removeFieldInCurrentSchema(key)
-		console.log('Removed:', key)
+		debug('Removed:', key)
 	}
 </script>
 

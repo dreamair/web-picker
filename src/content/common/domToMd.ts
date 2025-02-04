@@ -1,3 +1,5 @@
+import { debug } from "../../common/debug.js"
+
 const tagHandlers = {
   ['#text']: (n: Node) =>
     n.parentElement?.innerText.includes(n.textContent?.trim() ?? '')
@@ -61,6 +63,6 @@ export function domToMd(node?: Node | null) {
 export function htmlToMd(html?: string | null) {
   const div = document.createElement('div')
   div.innerHTML = html ?? ''
-  console.log(div, html, div.innerHTML)
+  debug(div, html, div.innerHTML)
   return domToMd(div)
 }

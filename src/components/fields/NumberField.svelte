@@ -2,6 +2,7 @@
 	import type { ChangeEventHandler } from 'svelte/elements'
 	import type { Writable } from 'svelte/store'
 	import { copyToClipboard } from '../../common/clipboard.js'
+	import { debug } from '../../common/debug.js'
 	import type { Command } from '../../model/Command.js'
 	import type { Field } from '../../model/Field.js'
 	import { updateField } from '../../model/Field.js'
@@ -25,7 +26,7 @@
 		const value = parseFloat(str)
 		if (isNaN(value)) return
 		fields.update(fields => updateField(fields, key, { value }))
-		console.log('Number changed:', key)
+		debug('Number changed:', key)
 	}
 
 	const onCopy = () => {

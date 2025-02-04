@@ -1,3 +1,4 @@
+import { debug } from '../../common/debug.js'
 import { createOverlay } from '../../common/dom.js'
 
 let callback: (node: HTMLElement | null) => void
@@ -44,7 +45,7 @@ function onMouseMove(event: MouseEvent) {
   const elem = getElementForPoint(event.clientX, event.clientY)
   if (!elem) return
   const r = elem.getBoundingClientRect()
-  console.log(elem.nodeName, elem.childNodes.length, elem.children.length)
+  debug(elem.nodeName, elem.childNodes.length, elem.children.length)
   element = elem
   if (overlay) overlay.remove()
   overlay = createOverlay(r)
