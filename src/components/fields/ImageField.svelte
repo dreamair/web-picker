@@ -6,6 +6,7 @@
 	import type { Command } from '../../model/Command.js'
 	import { toggleCommand } from '../../model/Command.js'
 	import { getField, type Field, type ImageField } from '../../model/Field.js'
+	import type { PageAction } from '../../model/Message.js'
 	import FieldHeader from './FieldHeader.svelte'
 
 	interface Props {
@@ -13,9 +14,16 @@
 		fields: Writable<Field[]>
 		activeCommand: Writable<Command | null>
 		isEditMode?: boolean
+		actions?: PageAction[]
 	}
 
-	const { key, fields, activeCommand, isEditMode = false }: Props = $props()
+	const {
+		key,
+		fields,
+		activeCommand,
+		isEditMode = false,
+		actions,
+	}: Props = $props()
 
 	const field = $derived($fields.find(f => f.name === key) as ImageField | null)
 
@@ -43,6 +51,7 @@
 		{fields}
 		{activeCommand}
 		{isEditMode}
+		{actions}
 		pickTitle="Pick an image on the current Web page.">
 		{#if field?.value}
 			<button

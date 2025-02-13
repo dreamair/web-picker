@@ -3,11 +3,14 @@
 	import Fields from '../components/Fields.svelte'
 
 	onMount(() => {
-		chrome.runtime.sendMessage({ action: 'activate', payload: true })
+		chrome.runtime.sendMessage({ action: 'activate-sidepanel', payload: true })
 	})
 	const onClose = () => {
 		if (document.hidden)
-			chrome.runtime.sendMessage({ action: 'activate', payload: false })
+			chrome.runtime.sendMessage({
+				action: 'activate-sidepanel',
+				payload: false,
+			})
 	}
 </script>
 

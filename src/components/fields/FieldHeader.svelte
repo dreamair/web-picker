@@ -4,7 +4,8 @@
 	import { debug } from '../../common/debug.js'
 	import type { Command } from '../../model/Command.js'
 	import { toggleCommand } from '../../model/Command.js'
-	import type { Field } from '../../model/Field.js'
+	import { type Field } from '../../model/Field.js'
+	import type { PageAction } from '../../model/Message.js'
 	import {
 		moveFieldInCurrentSchema,
 		removeFieldInCurrentSchema,
@@ -18,6 +19,7 @@
 		isEditMode?: boolean
 		pickTitle?: string | null
 		children?: import('svelte').Snippet
+		actions?: PageAction[]
 	}
 
 	const {
@@ -27,6 +29,7 @@
 		isEditMode = false,
 		pickTitle = null,
 		children,
+		actions = [],
 	}: Props = $props()
 
 	let isKeyValid = $state(true)
@@ -37,6 +40,12 @@
 		isKeyValid = !$fields.find(f => f.name === newKey)
 		debug('Key changed:', key)
 		renameFieldInCurrentSchema(key, newKey)
+	}
+	const onAction = (action: PageAction) => {
+		chrome.runtime.sendMessage({
+			action: 'execute-action',
+			payload: { key, action: action.type, fields: $fields },
+		})
 	}
 	const onPick = () => {
 		activeCommand.update(toggleCommand({ key, action: 'pick' }))
@@ -66,6 +75,17 @@
 		<!-- svelte-ignore a11y_click_events_have_key_events -->
 		<!-- svelte-ignore a11y_no_static_element_interactions -->
 		<div onclick={onPick}>{key}</div>
+		{#each actions as action}
+			<button
+				class="outline"
+				onclick={() => {
+					onAction(action)
+				}}
+				title={action.description}>{action.label}</button>
+		{/each}
+		{#if actions.length}
+			<div class="separator"></div>
+		{/if}
 		{@render children?.()}
 		<button onclick={onPick} class="outline" title={pickTitle}>📌</button>
 	{/if}
@@ -95,5 +115,9 @@
 	}
 	.picking div {
 		opacity: 1;
+	}
+	.separator {
+		width: 1em;
+		flex: none;
 	}
 </style>

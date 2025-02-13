@@ -6,6 +6,7 @@
 	import type { Command } from '../../model/Command.js'
 	import type { Field } from '../../model/Field.js'
 	import { getField, updateField } from '../../model/Field.js'
+	import type { PageAction } from '../../model/Message.js'
 	import FieldHeader from './FieldHeader.svelte'
 
 	interface Props {
@@ -13,9 +14,16 @@
 		fields: Writable<Field[]>
 		activeCommand: Writable<Command | null>
 		isEditMode?: boolean
+		actions?: PageAction[]
 	}
 
-	const { key, fields, activeCommand, isEditMode = false }: Props = $props()
+	const {
+		key,
+		fields,
+		activeCommand,
+		isEditMode = false,
+		actions = [],
+	}: Props = $props()
 
 	// #region state
 	const field = $derived($fields.find(f => f.name === key))
@@ -103,6 +111,7 @@
 		{fields}
 		{activeCommand}
 		{isEditMode}
+		{actions}
 		pickTitle={`Pick or select some ${typeLabel} on the current Web page!`}>
 		{#if hasPrefix}
 			<button onclick={onPrefix} class="outline" title="Remove the prefix."

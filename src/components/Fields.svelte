@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { copyToClipboard } from '../common/clipboard.js'
 	import type { FieldType } from '../model/Field.js'
+	import type { Message, PageAction } from '../model/Message.js'
 	import { addSchemaField, newSchemaKey } from '../model/Schema.js'
 	import { exportCsv, exportJson, exportMd } from '../service/export.js'
 	import { activeCommand } from '../state/command.js'
@@ -38,6 +39,17 @@
 		}
 	})
 	// #endregion
+
+	let pageActions = $state<PageAction[]>([])
+	const allFieldActions = $derived(pageActions.filter(a => !a.singleField))
+	const singleFieldActions = $derived(pageActions.filter(a => a.singleField))
+	chrome.runtime.onMessage.addListener(
+		async ({ action, payload }: Message, sender) => {
+			if (action !== 'offer-actions') return
+			console.log('offer actions message', action, payload, sender)
+			pageActions = payload
+		},
+	)
 
 	// #region actions
 	const onAdd = () => {
@@ -104,7 +116,12 @@
 	<main>
 		{#each $activeFields as field}
 			{@const SvelteComponent = fieldComponents[field.type]}
-			<SvelteComponent key={field.name} {fields} {activeCommand} {isEditMode} />
+			<SvelteComponent
+				key={field.name}
+				{fields}
+				{activeCommand}
+				{isEditMode}
+				actions={singleFieldActions} />
 		{/each}
 	</main>
 	<footer>
@@ -121,33 +138,50 @@
 			</div>
 		{:else}
 			<div>
-				<button
-					class="copy"
-					onclick={onCopyJson}
-					title="Copy the data in JSON format to the clipboard.">
-					JSON
-				</button>
-				<button
-					class="copy"
-					onclick={onCopyCsv}
-					title="Copy the data in CSV format to the clipboard.">
-					CSV
-				</button>
-				<button
-					class="copy"
-					onclick={onCopyMd}
-					title="Copy the data in Markdown format to the clipboard.">
-					MD
-				</button>
+				<div>
+					<button
+						class="copy"
+						onclick={onCopyJson}
+						title="Copy the data in JSON format to the clipboard.">
+						JSON
+					</button>
+					<button
+						class="copy"
+						onclick={onCopyCsv}
+						title="Copy the data in CSV format to the clipboard.">
+						CSV
+					</button>
+					<button
+						class="copy"
+						onclick={onCopyMd}
+						title="Copy the data in Markdown format to the clipboard.">
+						MD
+					</button>
+				</div>
+				<div>
+					<button
+						class="secondary"
+						onclick={onPageData}
+						title="Automatically try to extract page data like URL, title,..."
+						>✨</button>
+					<button class="secondary" onclick={onClear} title="Clear all data."
+						>🧹</button>
+				</div>
 			</div>
 			<div>
-				<button
-					class="secondary"
-					onclick={onPageData}
-					title="Automatically try to extract page data like URL, title,..."
-					>✨</button>
-				<button class="secondary" onclick={onClear} title="Clear all data."
-					>🧹</button>
+				<div class="page-actions">
+					{#each allFieldActions as action}
+						<button
+							onclick={() =>
+								chrome.runtime.sendMessage({
+									action: 'execute-action',
+									payload: { action: action.type, fields: $fields },
+								})}
+							title={action.description}>
+							{action.label}
+						</button>
+					{/each}
+				</div>
 			</div>
 		{/if}
 	</footer>
@@ -175,11 +209,11 @@
 	select.edit-mode {
 		color: var(--pico-primary);
 	}
-	footer {
+	footer > div {
 		display: flex;
 		justify-content: space-between;
 	}
-	footer > div {
+	footer > div > div {
 		display: flex;
 		justify-content: flex-end;
 		gap: 8px;
@@ -198,5 +232,9 @@
 		font-size: 2em;
 		font-weight: bold;
 		padding: 0 12px 4px;
+	}
+	.page-actions button {
+		font-size: 1em;
+		font-weight: normal;
 	}
 </style>
