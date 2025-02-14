@@ -16,6 +16,9 @@ let isActive = false
 
 chrome.runtime.onMessage.addListener((message: Message, sender) => {
   debug('message', message.action, message, 'sender', sender.tab?.id, isActive)
+  // only messages from the extension
+  if (sender.tab)
+    return
   if (message.action === 'activate-sidepanel') {
     if (!isActive && message.payload) {
       chrome.tabs.onUpdated.addListener(onUpdated)
@@ -27,8 +30,6 @@ chrome.runtime.onMessage.addListener((message: Message, sender) => {
     }
     isActive = message.payload
   }
-  if (sender.tab && message.action !== 'activate-tab')
-    return
   if (!isActive && message.action !== 'activate-sidepanel')
     return
   // send this to the active tab
@@ -59,11 +60,6 @@ async function onUpdated(tabId: number, changeInfo: chrome.tabs.TabChangeInfo,
   if (changeInfo.status === "complete") {
     debug(`Tab reloaded: ${tabId}, URL: ${tab.url}`, tab)
     await injectContent(tabId)
-    // sendWhenContentReady(tabId, { action: 'activate-tab', payload: true })
-    // setTimeout(() => {
-    //   debug('activate-tab', tabId)
-    //   chrome.tabs.sendMessage(tabId, { action: 'activate-tab', payload: true })
-    // }, 3000)
   }
 }
 
@@ -75,8 +71,10 @@ async function onActivated({ tabId }: chrome.tabs.TabActiveInfo) {
   if (!tab.url || tab.url.startsWith('chrome://'))
     return
   await injectContent(tabId)
-  // sendWhenContentReady(tabId, { action: 'activate-tab', payload: true })
   chrome.tabs.sendMessage(tabId, { action: 'activate-tab', payload: true })
+    .catch(console.error)
+  // for side panel
+  chrome.runtime.sendMessage({ action: 'activate-tab', payload: true })
     .catch(console.error)
 }
 
@@ -97,19 +95,4 @@ async function injectContent(tabId: number) {
     { target, func: () => { (window as any).__web_picker__ = true } })
     .catch(console.error)
   return true
-}
-
-async function sendWhenContentReady(tabId: number, message: Message) {
-  await chrome.scripting.executeScript({
-    target: { tabId },
-    func: (msg) => {
-      const contentReady = () => {
-        console.log('content ready', document.readyState, msg)
-        chrome.runtime.sendMessage(msg).catch(console.error)
-      }
-      if (document.readyState === 'complete') contentReady()
-      else document.addEventListener('load', contentReady)
-    },
-    args: [message]
-  })
 }

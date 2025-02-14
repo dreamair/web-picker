@@ -40,16 +40,31 @@
 	})
 	// #endregion
 
+	// #region page actions
 	let pageActions = $state<PageAction[]>([])
 	const allFieldActions = $derived(pageActions.filter(a => !a.singleField))
 	const singleFieldActions = $derived(pageActions.filter(a => a.singleField))
 	chrome.runtime.onMessage.addListener(
 		async ({ action, payload }: Message, sender) => {
-			if (action !== 'offer-actions') return
-			console.log('offer actions message', action, payload, sender)
-			pageActions = payload
+			console.log('page actions: message', action, payload, sender)
+			switch (action) {
+				case 'offer-actions':
+					pageActions = payload
+					break
+				case 'activate-tab':
+					pageActions = []
+					break
+			}
 		},
 	)
+
+	const onExecuteAction = (action: PageAction) => {
+		chrome.runtime.sendMessage({
+			action: 'execute-action',
+			payload: { action: action.type, fields: $fields },
+		})
+	}
+	// #endregion
 
 	// #region actions
 	const onAdd = () => {
@@ -172,11 +187,7 @@
 				<div class="page-actions">
 					{#each allFieldActions as action}
 						<button
-							onclick={() =>
-								chrome.runtime.sendMessage({
-									action: 'execute-action',
-									payload: { action: action.type, fields: $fields },
-								})}
+							onclick={() => onExecuteAction(action)}
 							title={action.description}>
 							{action.label}
 						</button>
