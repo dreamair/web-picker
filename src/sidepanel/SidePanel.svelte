@@ -5,16 +5,17 @@
 	onMount(() => {
 		chrome.runtime.sendMessage({ action: 'activate-sidepanel', payload: true })
 	})
-	const onClose = () => {
-		if (document.hidden)
-			chrome.runtime.sendMessage({
-				action: 'activate-sidepanel',
-				payload: false,
-			})
+	const onActivate = (active: boolean) => {
+		chrome.runtime.sendMessage({
+			action: 'activate-sidepanel',
+			payload: active,
+			isOptional: true,
+		})
 	}
 </script>
 
-<svelte:window onunload={onClose} />
-<svelte:document onvisibilitychangecapture={onClose} />
+<svelte:window onunload={() => onActivate(false)} />
+<svelte:document
+	onvisibilitychangecapture={() => onActivate(!document.hidden)} />
 
 <Fields />
