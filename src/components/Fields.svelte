@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { copyToClipboard } from '../common/clipboard.js'
+	import { debug } from '../common/debug.js'
 	import type { FieldType } from '../model/Field.js'
 	import type { Message, PageAction } from '../model/Message.js'
 	import { addSchemaField, newSchemaKey } from '../model/Schema.js'
@@ -46,7 +47,7 @@
 	const singleFieldActions = $derived(pageActions.filter(a => a.singleField))
 	chrome.runtime.onMessage.addListener(
 		async ({ action, payload }: Message, sender) => {
-			console.log('page actions: message', action, payload, sender)
+			debug('page actions: message', action, payload, sender)
 			switch (action) {
 				case 'offer-actions':
 					pageActions = payload

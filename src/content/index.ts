@@ -12,12 +12,12 @@ if (isDebug) {
     const target = event.target as HTMLElement
     if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' ||
       target.isContentEditable)
-      console.log('Focused on:', target)
+      debug('Focused on:', target)
   }, true)
 }
 
 window.addEventListener("message", (event) => {
-  console.log('window message', event.data, event.source === window)
+  debug('window message', event.data, event.source === window)
   if (event.source !== window) return // Ensure it's from the same page
   if (event.data.action === 'offer-actions')
     chrome.runtime.sendMessage(event.data).catch(console.error)
@@ -25,7 +25,7 @@ window.addEventListener("message", (event) => {
 
 chrome.runtime.onMessage.addListener(async ({ action, payload }: Message,
   sender) => {
-  console.log('content message', action, payload, sender)
+  debug('content message', action, payload, sender)
   if (!action) return
   if (sender.tab) return
   if (action.startsWith('activate-') || action.startsWith('execute-')) {
