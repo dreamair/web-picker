@@ -7,6 +7,7 @@ Chrome extension to pick data from a web page.
 - Side panel with fields to pick data for.
 - Text and image fields.
 - Copy to clipboard.
+- `offer-actions` message API
 
 ## Links
 
